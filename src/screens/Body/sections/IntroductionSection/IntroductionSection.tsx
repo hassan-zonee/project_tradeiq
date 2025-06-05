@@ -5,7 +5,7 @@ import { Card, CardContent } from "../../../../components/ui/card";
 export const IntroductionSection = (): JSX.Element => {
   // Stats data for mapping
   const stats = [
-    { value: "98%", label: "Accuracy Rate" },
+    { value: "91%", label: "Accuracy Rate" },
     { value: "50K+", label: "Active Traders" },
     { value: "24/7", label: "Market Analysis" },
   ];
@@ -40,14 +40,7 @@ export const IntroductionSection = (): JSX.Element => {
 
             <div className="flex gap-4">
               <Button className="bg-[#3b81f5] hover:bg-[#3b81f5]/90 text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]">
-                Start Free Trial
-              </Button>
-
-              <Button
-                variant="outline"
-                className="border-[#3b81f5] text-[#3b81f5] font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]"
-              >
-                Watch Demo
+                Getting Started
               </Button>
             </div>
 

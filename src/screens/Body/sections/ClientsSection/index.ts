@@ -1,1 +1,1 @@
-export { TestimonialsSection } from "./TestimonialsSection";
+export { ClientsSection } from "./ClientsSection";
