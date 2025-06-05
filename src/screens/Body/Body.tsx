@@ -2,10 +2,8 @@ import React from "react";
 import { Card, CardContent } from "../../components/ui/card";
 import { FooterSection } from "./sections/FooterSection/FooterSection";
 import { HeaderSection } from "./sections/HeaderSection";
-import { MainContentSection } from "./sections/MainContentSection/MainContentSection";
 import { MarketAnalysisSection } from "./sections/MarketAnalysisSection/MarketAnalysisSection";
 import { SignalsSection } from "./sections/SignalsSection/SignalsSection";
-import { SubscriptionPlansSection } from "./sections/SubscriptionPlansSection/SubscriptionPlansSection";
 import { TestimonialsSection } from "./sections/TestimonialsSection";
 
 export const Body = (): JSX.Element => {
@@ -54,8 +52,6 @@ export const Body = (): JSX.Element => {
 
           <TestimonialsSection />
           <SignalsSection />
-          <MainContentSection />
-          <SubscriptionPlansSection />
         </div>
       </main>
 
