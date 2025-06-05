@@ -2,9 +2,10 @@ import React from "react";
 
 import { FooterSection } from "./sections/FooterSection/FooterSection";
 import { HeaderSection } from "./sections/HeaderSection";
-import { IntroductionSection } from "./sections/MarketAnalysisSection/MarketAnalysisSection";
-import { SignalsSection } from "./sections/SignalsSection/SignalsSection";
-import { TestimonialsSection } from "./sections/TestimonialsSection";
+import { IntroductionSection } from "./sections/IntroductionSection/IntroductionSection";
+import { TestimonalsSections } from "./sections/TestimonalsSections/TestimonalsSections";
+import { ClientsSection } from "./sections/ClientsSection/ClientsSection";
+import { SubscriptionPlansSection } from "./sections/SubscriptionPlansSection/SubscriptionPlansSection";
 
 export const Body = (): JSX.Element => {
 
@@ -19,8 +20,9 @@ export const Body = (): JSX.Element => {
           {/* User count card - positioned with relative/absolute */}
 
 
-          <TestimonialsSection />
-          <SignalsSection />
+          <ClientsSection />
+          <TestimonalsSections />
+          <SubscriptionPlansSection />
         </div>
       </main>
 

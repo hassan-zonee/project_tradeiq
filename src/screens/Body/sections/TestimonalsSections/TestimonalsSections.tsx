@@ -35,7 +35,7 @@ const testimonials = [
   },
 ];
 
-export const SignalsSection = (): JSX.Element => {
+export const TestimonalsSections = (): JSX.Element => {
   return (
     <section className="py-16 flex flex-col w-full items-center">
       <div className="max-w-6xl w-full px-4">

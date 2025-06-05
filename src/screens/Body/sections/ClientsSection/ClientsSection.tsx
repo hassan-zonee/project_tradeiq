@@ -1,7 +1,7 @@
 import React from "react";
-import { Card, CardContent } from "../../../../components/ui/card";
+// No card imports needed
 
-export const TestimonialsSection = (): JSX.Element => {
+export const ClientsSection = (): JSX.Element => {
   // Company logos data for easy mapping
   const companyLogos = [
     { id: 1, src: "/img-70.png", alt: "Company logo 1" },
@@ -22,24 +22,27 @@ export const TestimonialsSection = (): JSX.Element => {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-8">
-          {companyLogos.map((logo) => (
-            <Card
-              key={logo.id}
-              className="border-none bg-transparent shadow-none"
-            >
-              <CardContent className="flex items-center justify-center p-0">
-                <div className="w-64 h-12 flex items-center justify-center opacity-60">
-                  <img
-                    className="max-w-[127.5px] h-12 object-cover"
-                    alt={logo.alt}
-                    src={logo.src}
+        {/* Animated logo carousel */}
+        <div className="relative w-full overflow-x-hidden py-4">
+          <div
+            className="flex gap-16 animate-logo-scroll hover:[animation-play-state:paused]"
+            style={{ animationDuration: '35s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' }}
+          >
+            {companyLogos.concat(companyLogos).map((logo, idx) => (
+              <div
+                key={logo.id + '-' + idx}
+                className="flex items-center justify-center opacity-70 transition-transform duration-300 hover:scale-110 hover:opacity-100"
+              >
+                <img
+                  className="max-w-[127.5px] h-12 object-contain mx-6 bg-transparent"
+                  alt={logo.alt}
+                  src={logo.src}
                   />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
+
       </div>
     </section>
   );
