@@ -3,45 +3,27 @@
 export const ClientsSection = (): JSX.Element => {
   // Company logos data for easy mapping
   const companyLogos = [
-    { id: 1, src: "/img-70.png", alt: "Company logo 1" },
-    { id: 2, src: "/img-72.png", alt: "Company logo 2" },
-    { id: 3, src: "/img-74.png", alt: "Company logo 3" },
-    { id: 4, src: "/img-76.png", alt: "Company logo 4" },
+    { id: 1, logo: "/img-70.png", name: "Company logo 1" },
+    { id: 2, logo: "/img-72.png", name: "Company logo 2" },
+    { id: 3, logo: "/img-74.png", name: "Company logo 3" },
+    { id: 4, logo: "/img-76.png", name: "Company logo 4" },
   ];
 
   return (
-    <section className="w-full py-16 bg-[#f9fafa]">
-      <div className="container mx-auto max-w-6xl px-4">
-        <div className="flex flex-col items-center mb-12">
-          <h2 className="font-bold text-3xl text-gray-800 text-center mb-4 font-['Roboto',Helvetica]">
-            Trusted by Leading Companies
-          </h2>
-          <p className="text-base text-[#4a5462] text-center font-['Roboto',Helvetica]">
-            Industry leaders who rely on our AI-powered trading intelligence
-          </p>
+    <section className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Trusted by Industry Leaders</h2>
+        <div className="flex flex-row justify-around">
+          {companyLogos.map((client, index) => (
+            <div key={index} className="flex items-center justify-center h-12">
+              <img 
+                src={client.logo} 
+                alt={client.name} 
+                className="max-h-full"
+              />
+            </div>
+          ))}
         </div>
-
-        {/* Animated logo carousel */}
-        <div className="relative w-full overflow-x-hidden py-4">
-          <div
-            className="flex gap-16 animate-logo-scroll hover:[animation-play-state:paused]"
-            style={{ animationDuration: '35s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' }}
-          >
-            {companyLogos.concat(companyLogos).map((logo, idx) => (
-              <div
-                key={logo.id + '-' + idx}
-                className="flex items-center justify-center opacity-70 transition-transform duration-300 hover:scale-110 hover:opacity-100"
-              >
-                <img
-                  className="max-w-[127.5px] h-12 object-contain mx-6 bg-transparent"
-                  alt={logo.alt}
-                  src={logo.src}
-                  />
-              </div>
-            ))}
-          </div>
-        </div>
-
       </div>
     </section>
   );

@@ -107,7 +107,7 @@ const recentSignalsData = [
   },
 ];
 
-export const MainContentSection = (): JSX.Element => {
+export const AnalysisSection = (): JSX.Element => {
   return (
     <div id="main-content-section" className="flex flex-wrap gap-8">
       {/* Left column */}
