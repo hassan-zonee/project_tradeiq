@@ -1,4 +1,3 @@
-import React from "react";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
@@ -110,7 +109,7 @@ const recentSignalsData = [
 
 export const MainContentSection = (): JSX.Element => {
   return (
-    <div className="flex flex-wrap gap-8">
+    <div id="main-content-section" className="flex flex-wrap gap-8">
       {/* Left column */}
       <div className="flex-1 min-w-0">
         <Card className="mb-6 shadow-sm">

@@ -10,22 +10,6 @@ export const HeaderSection = (): JSX.Element => {
             TradeIQ
           </div>
         </div>
-
-        <Button
-          variant="outline"
-          className="h-[42px] px-[25px] py-[9px] flex items-center gap-2 rounded-lg border-[#e4e7eb]"
-        >
-          <div className="w-5 h-5 flex items-center justify-center">
-            <img
-              className="w-[13px] h-[13px]"
-              alt="Google icon"
-              src="/group.png"
-            />
-          </div>
-          <span className="[font-family:'Roboto',Helvetica] font-medium text-[#374050] text-base">
-            Sign in with Google
-          </span>
-        </Button>
       </div>
     </header>
   );

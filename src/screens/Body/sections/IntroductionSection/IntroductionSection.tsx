@@ -1,9 +1,10 @@
 import React from "react";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
-import { Link } from "react-scroll";
+import { useNavigate } from "react-router-dom";
 
 export const IntroductionSection = (): JSX.Element => {
+  const navigate = useNavigate();
   // Stats data for mapping
   const stats = [
     { value: "91%", label: "Accuracy Rate" },
@@ -40,11 +41,12 @@ export const IntroductionSection = (): JSX.Element => {
             </div>
 
             <div className="flex gap-4">
-              <Link to="analysis-section" smooth={true} duration={500} offset={-100} className="cursor-pointer">
-                <Button className="bg-[#3b81f5] hover:bg-[#3b81f5]/90 text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]">
-                  Getting Started
-                </Button>
-              </Link>
+              <Button 
+                onClick={() => navigate('/analysis')}
+                className="bg-[#3b81f5] hover:bg-[#3b81f5]/90 text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]"
+              >
+                Getting Started
+              </Button>
             </div>
 
             <div className="pt-8">
