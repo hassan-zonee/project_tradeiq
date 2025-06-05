@@ -1,4 +1,3 @@
-import React from "react";
 // No card imports needed
 
 export const ClientsSection = (): JSX.Element => {

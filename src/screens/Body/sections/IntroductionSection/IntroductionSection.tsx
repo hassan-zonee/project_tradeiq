@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
+import { Link } from "react-scroll";
 
 export const IntroductionSection = (): JSX.Element => {
   // Stats data for mapping
@@ -39,26 +40,24 @@ export const IntroductionSection = (): JSX.Element => {
             </div>
 
             <div className="flex gap-4">
-              <Button className="bg-[#3b81f5] hover:bg-[#3b81f5]/90 text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]">
-                Getting Started
-              </Button>
+              <Link to="analysis-section" smooth={true} duration={500} offset={-100} className="cursor-pointer">
+                <Button className="bg-[#3b81f5] hover:bg-[#3b81f5]/90 text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]">
+                  Getting Started
+                </Button>
+              </Link>
             </div>
 
             <div className="pt-8">
-              <div className="flex flex-wrap gap-8">
+              <div className="flex flex-wrap gap-5 justify-center">
                 {stats.map((stat, index) => (
-                  <div key={index} className="flex flex-col">
-                    <div className="pb-1">
-                      <span className="font-bold text-2xl text-[#3b81f5] font-['Roboto',Helvetica]">
-                        {stat.value}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-base text-[#4a5462] font-['Roboto',Helvetica]">
-                        {stat.label}
-                      </span>
-                    </div>
-                  </div>
+                  <Card key={index} className="bg-white rounded-2xl shadow-lg px-6 py-4 flex flex-col items-center min-w-[100px]">
+                    <span className="font-bold text-xl text-[#3b81f5] font-['Roboto',Helvetica] mb-1">
+                      {stat.value}
+                    </span>
+                    <span className="text-sm text-[#4a5462] font-['Roboto',Helvetica] font-medium">
+                      {stat.label}
+                    </span>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -68,7 +67,7 @@ export const IntroductionSection = (): JSX.Element => {
           <div className="w-full lg:w-[calc(50%-24px)]">
             <div className="relative">
               <img
-                className="w-full h-auto object-cover rounded-xl"
+                className="w-full h-auto object-cover rounded-xl -mt-20"
                 alt="Trading dashboard visualization"
                 src="/img-58.png"
               />
