@@ -52,7 +52,7 @@ export const IntroductionSection = (): JSX.Element => {
             <div className="pt-8">
               <div className="flex flex-wrap gap-5 justify-center">
                 {stats.map((stat, index) => (
-                  <Card key={index} className="bg-white rounded-2xl shadow-lg px-6 py-4 flex flex-col items-center min-w-[100px]">
+                  <Card key={index} className="bg-white rounded-2xl shadow-lg px-6 py-4 flex flex-col items-center w-full sm:min-w-[100px] sm:w-auto">
                     <span className="font-bold text-xl text-[#3b81f5] font-['Roboto',Helvetica] mb-1">
                       {stat.value}
                     </span>
@@ -69,12 +69,12 @@ export const IntroductionSection = (): JSX.Element => {
           <div className="w-full lg:w-[calc(50%-24px)]">
             <div className="relative">
               <img
-                className="w-full h-auto object-cover rounded-xl -mt-20"
+                className="w-full h-auto object-cover rounded-xl lg:-mt-20"
                 alt="Trading dashboard visualization"
                 src="/img-58.png"
               />
               {/* Overlay Card */}
-              <Card className="flex flex-col w-80 absolute -bottom-6 -right-6 lg:-right-6 shadow-[0px_10px_15px_-3px_#0000001a,0px_4px_6px_-4px_#0000001a] rounded-2xl overflow-hidden z-10 bg-white">
+              <Card className="flex flex-col w-[calc(100%-2rem)] sm:w-80 absolute -bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-6 lg:-right-6 shadow-[0px_10px_15px_-3px_#0000001a,0px_4px_6px_-4px_#0000001a] rounded-2xl overflow-hidden z-10 bg-white">
                 <CardContent className="p-4">
                   <div className="flex items-center">
                     <div className="flex items-start">
