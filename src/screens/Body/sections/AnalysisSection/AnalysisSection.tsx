@@ -79,9 +79,9 @@ export const AnalysisSection = (): JSX.Element => {
   }, []);
 
   return (
-    <div id="main-content-section" className="flex w-full gap-8">
+    <div id="main-content-section" className="flex flex-col lg:flex-row w-full gap-4">
       {/* Left column */}
-      <div className="flex-[0_0_70%] min-w-0">
+      <div className="w-full lg:flex-[0_0_70%] lg:min-w-0">
         <Card className="mb-6 shadow-sm">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -219,7 +219,7 @@ export const AnalysisSection = (): JSX.Element => {
         </Card>
       </div>
       {/* Right Side: AI Analysis Card */}
-      <div className="flex-[0_0_30%] min-w-[320px]">
+      <div className="w-full lg:flex-[0_0_30%] lg:min-w-[320px]">
         <Card className="shadow-sm">
           <CardContent className="p-6">
             <div className="flex justify-between items-center">
