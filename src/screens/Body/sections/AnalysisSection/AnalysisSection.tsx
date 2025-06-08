@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getTopSymbols } from "../../../../lib/finnhub";
+import { getTopSymbols, type SymbolInfo } from "../../../../lib/finnhub";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
@@ -110,7 +110,7 @@ const recentSignalsData = [
 ];
 
 export const AnalysisSection = (): JSX.Element => {
-  const [currencyPairs, setCurrencyPairs] = useState<string[]>([]);
+  const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
   const [loadingPairs, setLoadingPairs] = useState<boolean>(true);
   const [pairsError, setPairsError] = useState<string | null>(null);
 
@@ -121,17 +121,7 @@ export const AnalysisSection = (): JSX.Element => {
       try {
         const symbols = await getTopSymbols();
         if (symbols && Array.isArray(symbols)) {
-          const pairs = symbols.map((sym: string) => {
-            if (sym.includes(":")) {
-              return sym.split(":")[1].replace("_", "/");
-            }
-            if (sym.endsWith("USDT")) {
-              const match = sym.match(/([A-Z]+)USDT$/);
-              return match ? `${match[1]}/USDT` : sym;
-            }
-            return sym;
-          });
-          setCurrencyPairs(pairs);
+          setCurrencyPairs(symbols);
         } else {
           setPairsError("Invalid data format");
         }
@@ -157,7 +147,7 @@ export const AnalysisSection = (): JSX.Element => {
                   <label className="text-sm font-medium text-[#374050] mb-1">
                     Currency Pair
                   </label>
-                  <Select defaultValue={currencyPairs[0] || ""}>
+                  <Select defaultValue={currencyPairs[0]?.symbol || ""}>
                     <SelectTrigger className="w-40 h-[42px] border-[#d0d5da]">
                       <SelectValue placeholder="Select Pair" />
                     </SelectTrigger>
@@ -169,9 +159,13 @@ export const AnalysisSection = (): JSX.Element => {
                       ) : currencyPairs.length === 0 ? (
                         <div className="px-4 py-2 text-gray-400 text-sm select-none">No pairs found</div>
                       ) : (
-                        currencyPairs.map((pair) => (
-                          <SelectItem key={pair} value={pair}>
-                            {pair}
+                        currencyPairs.map((pair, idx) => (
+                          <SelectItem key={idx} value={pair.symbol}>
+                            <div>
+                              <span className="text-base font-semibold">{pair.symbol}</span>
+                              <br />
+                              <span className="text-xs text-gray-400">{pair.description}</span>
+                            </div>
                           </SelectItem>
                         ))
                       )}
