@@ -1,10 +1,10 @@
-import React from "react";
+
 import { motion } from "framer-motion";
 
 import { FooterSection } from "./sections/FooterSection/FooterSection";
 import { HeaderSection } from "./sections/HeaderSection";
 import { IntroductionSection } from "./sections/IntroductionSection/IntroductionSection";
-import { TestimonalsSections } from "./sections/TestimonalsSections/TestimonalsSections";
+import { TestimonalsSections } from "./sections/TestimonalsSections/TestimonalsSection";
 import { ClientsSection } from "./sections/ClientsSection/ClientsSection";
 import { SubscriptionPlansSection } from "./sections/SubscriptionPlansSection/SubscriptionPlansSection";
 

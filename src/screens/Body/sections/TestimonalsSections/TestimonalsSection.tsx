@@ -1,5 +1,6 @@
 import { StarIcon } from "lucide-react";
 import React from "react";
+import { motion } from 'framer-motion';
 import {
   Avatar,
   AvatarFallback,
@@ -39,7 +40,12 @@ export const TestimonalsSections = (): JSX.Element => {
   return (
     <section className="py-16 flex flex-col w-full items-center">
       <div className="max-w-6xl w-full px-4">
-        <header className="mb-12 text-center">
+        <motion.header 
+          className="mb-12 text-center"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           <h2 className="text-3xl font-bold text-gray-800 mb-4 font-['Roboto',Helvetica]">
             What Our Traders Say
           </h2>
@@ -47,17 +53,27 @@ export const TestimonalsSections = (): JSX.Element => {
             Join thousands of satisfied traders who have transformed their
             trading with TradeIQ
           </p>
-        </header>
+        </motion.header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
-            <Card
+          {testimonials.map((testimonial, index) => (
+            <motion.div
               key={testimonial.id}
-              className="border border-solid border-[#f2f4f5] shadow-[0px_1px_2px_#0000000d] rounded-2xl"
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.4, delay: index * 0.1, ease: "easeOut" }}
+              whileHover={{ 
+                y: -10, 
+                scale: 1.03,
+                boxShadow: "0px 15px 25px rgba(0,0,0,0.12)" 
+              }}
+              className="h-full flex flex-col"
             >
+              <Card className="border border-solid border-[#f2f4f5] shadow-[0px_1px_2px_#0000000d] rounded-2xl flex flex-col flex-grow">
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
-                  <Avatar className="h-12 w-12">
+                  <motion.div whileHover={{ scale: 1.1 }} transition={{ type: 'spring', stiffness: 300 }}>
+                    <Avatar className="h-12 w-12">
                     <AvatarImage
                       src={testimonial.image}
                       alt={`${testimonial.name}'s profile`}
@@ -65,7 +81,8 @@ export const TestimonalsSections = (): JSX.Element => {
                     <AvatarFallback>
                       {testimonial.name.charAt(0)}
                     </AvatarFallback>
-                  </Avatar>
+                    </Avatar>
+                  </motion.div>
                   <div className="ml-4">
                     <h3 className="font-medium text-gray-800 text-base font-['Roboto',Helvetica]">
                       {testimonial.name}
@@ -90,7 +107,8 @@ export const TestimonalsSections = (): JSX.Element => {
                   ))}
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </div>
