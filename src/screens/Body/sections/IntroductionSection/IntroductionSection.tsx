@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "../../../../components/ui/button";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { useNavigate } from "react-router-dom";
 
@@ -24,49 +24,89 @@ export const IntroductionSection = (): JSX.Element => {
       <div className="px-12 max-w-6xl w-full">
         <div className="flex flex-wrap gap-12 items-center">
           {/* Left Column - Text Content */}
-          <div className="flex flex-col w-full lg:w-[calc(50%-24px)]">
-            <div className="pb-6">
+          <motion.div 
+            className="flex flex-col w-full lg:w-[calc(50%-24px)]"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div 
+              className="pb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <h2 className="font-bold text-4xl leading-[48px] text-gray-800 font-['Roboto',Helvetica]">
                 Transform Your Trading with AI-Powered Market Intelligence
               </h2>
-            </div>
+            </motion.div>
 
-            <div className="pb-8">
+            <motion.div 
+              className="pb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               <p className="text-base leading-7 text-[#4a5462] font-['Roboto',Helvetica]">
                 Experience the future of trading with TradeIQ&#39;s advanced
                 artificial intelligence. Get real-time analysis, precise
                 signals, and data-driven insights to make smarter trading
                 decisions.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="flex gap-4">
-              <Button 
+            <motion.div 
+              className="flex gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <motion.button 
                 onClick={() => navigate('/analysis')}
-                className="bg-[#3b81f5] hover:bg-[#3b81f5]/90 text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]"
+                className="bg-[#3b81f5] text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]"
+                whileHover={{ scale: 1.05, backgroundColor: "#3273dc" }}
+                whileTap={{ scale: 0.95 }}
               >
                 Getting Started
-              </Button>
-            </div>
+              </motion.button>
+            </motion.div>
 
-            <div className="pt-8">
+            <motion.div 
+              className="pt-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+            >
               <div className="flex flex-wrap gap-5 justify-center">
                 {stats.map((stat, index) => (
-                  <Card key={index} className="bg-white rounded-2xl shadow-lg px-6 py-4 flex flex-col items-center w-full sm:min-w-[100px] sm:w-auto">
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+                    whileHover={{ y: -5, boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
+                  >
+                    <Card className="bg-white rounded-2xl shadow-lg px-6 py-4 flex flex-col items-center w-full sm:min-w-[100px] sm:w-auto h-full">
                     <span className="font-bold text-xl text-[#3b81f5] font-['Roboto',Helvetica] mb-1">
                       {stat.value}
                     </span>
                     <span className="text-sm text-[#4a5462] font-['Roboto',Helvetica] font-medium">
                       {stat.label}
                     </span>
-                  </Card>
+                    </Card>
+                  </motion.div>
                 ))}
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Right Column - Image with overlay card */}
-          <div className="w-full lg:w-[calc(50%-24px)]">
+          <motion.div 
+            className="w-full lg:w-[calc(50%-24px)]"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <div className="relative">
               <img
                 className="w-full h-auto object-cover rounded-xl lg:-mt-20"
@@ -101,7 +141,7 @@ export const IntroductionSection = (): JSX.Element => {
                 </CardContent>
               </Card>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

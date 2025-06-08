@@ -1,4 +1,4 @@
-// No card imports needed
+import { motion } from 'framer-motion';
 
 export const ClientsSection = (): JSX.Element => {
   // Company logos data for easy mapping
@@ -12,16 +12,30 @@ export const ClientsSection = (): JSX.Element => {
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Trusted by Industry Leaders</h2>
-        <div className="flex flex-row justify-around">
+        <motion.h2 
+          className="text-3xl font-bold text-center mb-12 text-gray-800"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Trusted by Industry Leaders
+        </motion.h2>
+        <div className="flex flex-wrap justify-center sm:justify-around items-center gap-8 sm:gap-12">
           {companyLogos.map((client, index) => (
-            <div key={index} className="flex items-center justify-center h-12">
+            <motion.div 
+              key={client.id} 
+              className="flex items-center justify-center h-12 w-1/2 sm:w-1/3 md:w-1/4 lg:w-auto px-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
+              whileHover={{ scale: 1.1, opacity: 0.8 }}
+            >
               <img 
                 src={client.logo} 
                 alt={client.name} 
-                className="max-h-full"
+                className="max-h-full max-w-full object-contain"
               />
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
