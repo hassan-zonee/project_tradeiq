@@ -114,6 +114,16 @@ export const AnalysisSection = (): JSX.Element => {
   const [selectedPair, setSelectedPair] = useState<string>("XAU/USD");
   const [loadingPairs, setLoadingPairs] = useState<boolean>(true);
   const [pairsError, setPairsError] = useState<string | null>(null);
+  const [search, setSearch] = useState<string>("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const filteredPairs = currencyPairs
+    .filter(
+      pair =>
+        pair.symbol.toLowerCase().includes(search.toLowerCase()) ||
+        pair.description.toLowerCase().includes(search.toLowerCase())
+    )
+    .slice(0, 10);
 
   useEffect(() => {
     const fetchPairs = async () => {
@@ -149,33 +159,51 @@ export const AnalysisSection = (): JSX.Element => {
             <div className="flex justify-between items-center mb-6">
               <div className="flex gap-4">
                 <div className="flex flex-col">
+                  {/* Only render the label/title once, not duplicated */}
                   <label className="text-sm font-medium text-[#374050] mb-1">
                     Currency Pair
                   </label>
-                  <Select value={selectedPair} onValueChange={setSelectedPair}>
-                    <SelectTrigger className="w-40 h-[42px] border-[#d0d5da]">
-                      <SelectValue placeholder="Select Pair" />
-                    </SelectTrigger>
-                    <SelectContent>
+                  <div className="flex flex-col relative">
+                  <input
+                    type="text"
+                    className="w-40 h-[42px] border border-[#d0d5da] rounded px-2"
+                    placeholder="Search pair"
+                    value={search}
+                    onChange={e => {
+                      setSearch(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  />
+                  {showSuggestions && (
+                    <div className="absolute z-10 bg-white border border-gray-200 rounded shadow w-40 max-h-60 overflow-y-auto mt-11">
                       {loadingPairs ? (
                         <div className="px-4 py-2 text-gray-400 text-sm select-none">Loading...</div>
                       ) : pairsError ? (
                         <div className="px-4 py-2 text-red-500 text-sm select-none">{pairsError}</div>
-                      ) : currencyPairs.length === 0 ? (
+                      ) : filteredPairs.length === 0 ? (
                         <div className="px-4 py-2 text-gray-400 text-sm select-none">No pairs found</div>
                       ) : (
-                        currencyPairs.map((pair, idx) => (
-                          <SelectItem key={idx} value={pair.symbol}>
-                            <div>
-                              <span className="text-base font-semibold">{pair.symbol}</span>
-                              <br />
-                              <span className="text-xs text-gray-400">{pair.description}</span>
-                            </div>
-                          </SelectItem>
+                        filteredPairs.map((pair, idx) => (
+                          <div
+                            key={idx}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedPair === pair.symbol ? "bg-gray-100" : ""}`}
+                            onMouseDown={() => {
+                              setSelectedPair(pair.symbol);
+                              setSearch(""); // Clear search after selection
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <span className="text-base font-semibold">{pair.symbol}</span>
+                            <br />
+                            <span className="text-xs text-gray-400">{pair.description}</span>
+                          </div>
                         ))
                       )}
-                    </SelectContent>
-                  </Select>
+                    </div>
+                  )}
+                </div>
                 </div>
 
                 <div className="flex flex-col">
