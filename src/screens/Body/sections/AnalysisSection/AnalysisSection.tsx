@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
@@ -108,6 +109,42 @@ const recentSignalsData = [
 ];
 
 export const AnalysisSection = (): JSX.Element => {
+  const [currencyPairs, setCurrencyPairs] = useState<string[]>([]);
+  const [loadingPairs, setLoadingPairs] = useState<boolean>(true);
+  const [pairsError, setPairsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPairs = async () => {
+      setLoadingPairs(true);
+      setPairsError(null);
+      try {
+        const res = await fetch("/api/symbols");
+        const data = await res.json();
+        if (data.symbols && Array.isArray(data.symbols)) {
+          const pairs = data.symbols.map((sym: string) => {
+            if (sym.includes(":")) {
+              return sym.split(":")[1].replace("_", "/");
+            }
+            if (sym.endsWith("USDT")) {
+              const match = sym.match(/([A-Z]+)USDT$/);
+              return match ? `${match[1]}/USDT` : sym;
+            }
+            return sym;
+          });
+          setCurrencyPairs(pairs);
+        } else {
+          setPairsError("Invalid data format");
+        }
+      } catch (error: any) {
+        console.error("Error fetching currency pairs:", error);
+        setPairsError("Failed to fetch");
+      } finally {
+        setLoadingPairs(false);
+      }
+    };
+    fetchPairs();
+  }, []);
+
   return (
     <div id="main-content-section" className="flex flex-wrap gap-8">
       {/* Left column */}
@@ -120,14 +157,24 @@ export const AnalysisSection = (): JSX.Element => {
                   <label className="text-sm font-medium text-[#374050] mb-1">
                     Currency Pair
                   </label>
-                  <Select defaultValue="EUR/USD">
+                  <Select defaultValue={currencyPairs[0] || ""}>
                     <SelectTrigger className="w-40 h-[42px] border-[#d0d5da]">
-                      <SelectValue placeholder="EUR/USD" />
+                      <SelectValue placeholder="Select Pair" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="EUR/USD">EUR/USD</SelectItem>
-                      <SelectItem value="GBP/USD">GBP/USD</SelectItem>
-                      <SelectItem value="USD/JPY">USD/JPY</SelectItem>
+                      {loadingPairs ? (
+                        <div className="px-4 py-2 text-gray-400 text-sm select-none">Loading...</div>
+                      ) : pairsError ? (
+                        <div className="px-4 py-2 text-red-500 text-sm select-none">{pairsError}</div>
+                      ) : currencyPairs.length === 0 ? (
+                        <div className="px-4 py-2 text-gray-400 text-sm select-none">No pairs found</div>
+                      ) : (
+                        currencyPairs.map((pair) => (
+                          <SelectItem key={pair} value={pair}>
+                            {pair}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -228,10 +275,7 @@ export const AnalysisSection = (): JSX.Element => {
 
             <div className="space-y-4">
               {marketOverviewData.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center"
-                >
+                <div key={item.id} className="flex justify-between items-center">
                   <div className="flex items-center">
                     <div
                       className={`w-8 h-8 flex items-center justify-center ${item.bgColor} rounded-full mr-3`}
@@ -243,9 +287,7 @@ export const AnalysisSection = (): JSX.Element => {
                           src={item.iconImg}
                         />
                       ) : (
-                        <span
-                          className={`${item.textColor} font-medium text-base`}
-                        >
+                        <span className={`${item.textColor} font-medium text-base`}>
                           {item.icon}
                         </span>
                       )}
@@ -254,15 +296,17 @@ export const AnalysisSection = (): JSX.Element => {
                       <div className="font-medium text-black text-base">
                         {item.symbol}
                       </div>
-                      <div className="text-[#6a7280] text-xs">{item.name}</div>
+                      <div className="text-[#6b7280] text-sm">
+                        {item.name}
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium text-black text-base">
-                      {item.value}
-                    </div>
+                    <div className="text-black font-semibold">{item.value}</div>
                     <div
-                      className={`text-xs ${item.isPositive ? "text-[#16a24a]" : "text-[#db2525]"}`}
+                      className={`text-sm ${
+                        item.isPositive ? "text-[#059669]" : "text-[#dc2626]"
+                      }`}
                     >
                       {item.change}
                     </div>
@@ -275,41 +319,30 @@ export const AnalysisSection = (): JSX.Element => {
 
         <Card className="shadow-sm">
           <CardContent className="p-6">
-            <h3 className="font-semibold text-gray-800 text-xl mb-2">
+            <h3 className="font-semibold text-gray-800 text-xl mb-4">
               Recent Signals
             </h3>
-            <p className="text-[#6a7280] text-sm mb-4">
-              Latest AI-generated trading signals
-            </p>
 
             <div className="space-y-4">
               {recentSignalsData.map((signal) => (
-                <div
-                  key={signal.id}
-                  className={`pl-4 py-1 border-l-4 ${signal.isPositive ? "border-[#21c45d]" : "border-red-500"}`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="font-medium text-black text-base">
-                      {signal.symbol}
-                    </div>
-                    <div
-                      className={`font-medium ${signal.isPositive ? "text-[#16a24a]" : "text-[#db2525]"} text-base`}
+                <div key={signal.id} className="border-b pb-3 last:border-none">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-black font-semibold">{signal.symbol}</span>
+                    <Badge
+                      className={`text-xs px-2 py-1 rounded ${
+                        signal.isPositive
+                          ? "bg-[#dcfce7] text-[#15803d]"
+                          : "bg-[#fee2e2] text-[#b91c1c]"
+                      }`}
                     >
                       {signal.action}
-                    </div>
+                    </Badge>
                   </div>
-                  <div className="text-[#6a7280] text-xs">{signal.date}</div>
-                  <div className="text-black text-sm mt-1">{signal.pips}</div>
+                  <div className="text-sm text-[#6b7280] mb-1">{signal.date}</div>
+                  <div className="text-sm text-[#374151]">{signal.pips}</div>
                 </div>
               ))}
             </div>
-
-            <Button
-              variant="outline"
-              className="w-full mt-6 border-[#3b81f5] text-[#3b81f5] font-medium"
-            >
-              View All Signals
-            </Button>
           </CardContent>
         </Card>
       </div>
