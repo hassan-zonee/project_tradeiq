@@ -87,8 +87,8 @@ export const AnalysisSection = (): JSX.Element => {
       <div className="w-full lg:flex-[0_0_70%] lg:min-w-0">
         <Card className="mb-6 shadow-sm">
           <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex flex-col">
                   {/* Only render the label/title once, not duplicated */}
                   <label className="text-sm font-medium text-[#374050] mb-1">
@@ -97,7 +97,7 @@ export const AnalysisSection = (): JSX.Element => {
                   <div className="flex flex-col relative">
                   <input
                     type="text"
-                    className="w-40 h-[42px] border border-[#d0d5da] rounded px-2"
+                    className="w-full sm:w-40 h-[42px] border border-[#d0d5da] rounded px-2"
                     placeholder="Search pair"
                     value={search}
                     onChange={e => {
@@ -108,7 +108,7 @@ export const AnalysisSection = (): JSX.Element => {
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                   />
                   {showSuggestions && (
-                    <div className="absolute z-10 bg-white border border-gray-200 rounded shadow w-40 max-h-60 overflow-y-auto mt-11">
+                    <div className="absolute z-10 bg-white border border-gray-200 rounded shadow w-full sm:w-40 max-h-60 overflow-y-auto mt-11">
                       {loadingPairs ? (
                         <div className="px-4 py-2 text-gray-400 text-sm select-none">Loading...</div>
                       ) : pairsError ? (
@@ -142,7 +142,7 @@ export const AnalysisSection = (): JSX.Element => {
                     Timeframe
                   </label>
                   <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                    <SelectTrigger className="w-28 h-[42px] border-[#d0d5da]">
+                    <SelectTrigger className="w-full sm:w-28 h-[42px] border-[#d0d5da]">
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
@@ -176,7 +176,7 @@ export const AnalysisSection = (): JSX.Element => {
             <Separator className="bg-[#f2f4f5]" />
 
             <div className="">
-              <div className="rounded-2xl overflow-hidden h-[250px] mb-2 h-g bg-green-300 flex items-center justify-center">
+              <div className="rounded-2xl overflow-hidden h-[350px] mb-2 h-g bg-green-300 flex items-center justify-center">
                 {chartLoading ? (
                   <span className="text-gray-500">Loading chart data...</span>
                 ) : chartError ? (
@@ -195,7 +195,7 @@ export const AnalysisSection = (): JSX.Element => {
       <div className="w-full lg:flex-[0_0_30%] lg:min-w-[320px]">
         <Card className="shadow-sm">
           <CardContent className="p-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
               <h3 className="font-semibold text-gray-800 text-xl">
                 AI Analysis
               </h3>
