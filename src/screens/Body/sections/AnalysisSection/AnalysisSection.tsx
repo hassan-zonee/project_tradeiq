@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getTopSymbols } from "../../../../lib/finnhub";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
@@ -118,10 +119,9 @@ export const AnalysisSection = (): JSX.Element => {
       setLoadingPairs(true);
       setPairsError(null);
       try {
-        const res = await fetch("/api/symbols");
-        const data = await res.json();
-        if (data.symbols && Array.isArray(data.symbols)) {
-          const pairs = data.symbols.map((sym: string) => {
+        const symbols = await getTopSymbols();
+        if (symbols && Array.isArray(symbols)) {
+          const pairs = symbols.map((sym: string) => {
             if (sym.includes(":")) {
               return sym.split(":")[1].replace("_", "/");
             }

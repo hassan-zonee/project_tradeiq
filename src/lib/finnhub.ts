@@ -2,15 +2,22 @@ const API_KEY = "d12mkapr01qmhi3jjthgd12mkapr01qmhi3jjti0";
 
 export async function getTopSymbols(): Promise<string[]> {
   const forexRes = await fetch(`https://finnhub.io/api/v1/forex/symbol?exchange=oanda&token=${API_KEY}`);
+  const cryptoRes = await fetch(`https://finnhub.io/api/v1/crypto/symbol?exchange=binance&token=${API_KEY}`);
 
   const forexData = await forexRes.json();
+  const cryptoData = await cryptoRes.json();
 
   const forexPairs = forexData
     .filter((item: any) => item.displaySymbol)
     .slice(0, 10)
     .map((item: any) => item.symbol);
 
-  return [...forexPairs];
+  const cryptoPairs = cryptoData
+    .filter((item: any) => item.displaySymbol)
+    .slice(0, 10)
+    .map((item: any) => item.symbol);
+
+  return [...forexPairs, ...cryptoPairs];
 }
 
 export async function getChartData(symbol: string, timeframe: string) {
