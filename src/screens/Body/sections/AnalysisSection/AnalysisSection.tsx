@@ -146,7 +146,6 @@ export const AnalysisSection = (): JSX.Element => {
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="15m">15m</SelectItem>
                       <SelectItem value="30m">30m</SelectItem>
                       <SelectItem value="1h">1h</SelectItem>
                       <SelectItem value="4h">4h</SelectItem>
@@ -176,17 +175,8 @@ export const AnalysisSection = (): JSX.Element => {
 
             <Separator className="bg-[#f2f4f5]" />
 
-            <div className="pt-[17px]">
-              <div className="flex gap-3 mb-4">
-                <Badge
-                  variant="outline"
-                  className="bg-[#3b81f5] text-white font-medium px-3 py-1 rounded-lg"
-                >
-                  Candlestick
-                </Badge>
-              </div>
-
-              <div className="rounded-2xl overflow-hidden h-[300px] mb-2 h-g bg-green-300 flex items-center justify-center">
+            <div className="">
+              <div className="rounded-2xl overflow-hidden h-[250px] mb-2 h-g bg-green-300 flex items-center justify-center">
                 {chartLoading ? (
                   <span className="text-gray-500">Loading chart data...</span>
                 ) : chartError ? (

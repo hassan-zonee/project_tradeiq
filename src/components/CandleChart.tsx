@@ -14,6 +14,9 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data }) => {
       chartRef.current = createChart(chartContainerRef.current, {
         width: chartContainerRef.current.clientWidth,
         height: chartContainerRef.current.clientHeight,
+        timeScale: {
+          rightOffset: 20,
+        },
       });
 
       const candlestickSeries = chartRef.current.addSeries(CandlestickSeries);
