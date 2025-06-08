@@ -10,17 +10,17 @@ export async function getTopSymbols(): Promise<SymbolInfo[]> {
   const cryptoData = await cryptoRes.json();
 
   const forexPairs: SymbolInfo[] = forexData
-    .slice(0, 20)
+    .slice(0, 200)
     .map((item: any) => ({
       symbol: item.displaySymbol,
       description: item.description.replace("Oanda", "")
     }));
 
   const cryptoPairs: SymbolInfo[] = cryptoData
-    .slice(0, 20)
+    .slice(0, 200)
     .map((item: any) => ({
       symbol: item.displaySymbol,
-      description: item.description.split(" ")[1]
+      description: item.description.replace("Binance", "")
     }));
 
   return [...forexPairs, ...cryptoPairs];

@@ -111,6 +111,7 @@ const recentSignalsData = [
 
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
+  const [selectedPair, setSelectedPair] = useState<string>("XAU/USD");
   const [loadingPairs, setLoadingPairs] = useState<boolean>(true);
   const [pairsError, setPairsError] = useState<string | null>(null);
 
@@ -122,6 +123,10 @@ export const AnalysisSection = (): JSX.Element => {
         const symbols = await getTopSymbols();
         if (symbols && Array.isArray(symbols)) {
           setCurrencyPairs(symbols);
+          // If XAU/USD is not present, select the first available
+          if (!symbols.some(pair => pair.symbol === "XAU/USD")) {
+            setSelectedPair(symbols[0]?.symbol || "");
+          }
         } else {
           setPairsError("Invalid data format");
         }
@@ -147,7 +152,7 @@ export const AnalysisSection = (): JSX.Element => {
                   <label className="text-sm font-medium text-[#374050] mb-1">
                     Currency Pair
                   </label>
-                  <Select defaultValue={currencyPairs[0]?.symbol || ""}>
+                  <Select value={selectedPair} onValueChange={setSelectedPair}>
                     <SelectTrigger className="w-40 h-[42px] border-[#d0d5da]">
                       <SelectValue placeholder="Select Pair" />
                     </SelectTrigger>
