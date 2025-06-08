@@ -6,7 +6,7 @@ export const AnalysisPage = () => (
   <div className="flex flex-col min-h-screen w-full bg-[#f9fafa]">
     <HeaderSection />
     <br />
-    <main className="flex justify-center w-full mb-7 px-10 md:px-20">
+    <main className="flex justify-center w-full mb-7 px-4 md:px-20">
       <div className="flex flex-col w-full max-w-screen-xl relative">
         <AnalysisSection />
       </div>

@@ -12,102 +12,6 @@ import {
 } from "../../../../components/ui/select";
 import { Separator } from "../../../../components/ui/separator";
 
-// Market overview data
-const marketOverviewData = [
-  {
-    id: 1,
-    symbol: "EUR/USD",
-    name: "Euro / US Dollar",
-    value: "1.0875",
-    change: "+0.24%",
-    isPositive: true,
-    icon: "€/$",
-    bgColor: "bg-[#dae9fe]",
-    textColor: "text-[#2562eb]",
-  },
-  {
-    id: 2,
-    symbol: "GBP/USD",
-    name: "British Pound / US Dollar",
-    value: "1.2715",
-    change: "-0.12%",
-    isPositive: false,
-    icon: "£/$",
-    bgColor: "bg-[#dae9fe]",
-    textColor: "text-[#2562eb]",
-  },
-  {
-    id: 3,
-    symbol: "USD/JPY",
-    name: "US Dollar / Japanese Yen",
-    value: "149.85",
-    change: "+0.35%",
-    isPositive: true,
-    icon: "$/¥",
-    bgColor: "bg-[#dae9fe]",
-    textColor: "text-[#2562eb]",
-  },
-  {
-    id: 4,
-    symbol: "BTC/USD",
-    name: "Bitcoin / US Dollar",
-    value: "65,432",
-    change: "+1.87%",
-    isPositive: true,
-    icon: "",
-    bgColor: "bg-[#ffecd5]",
-    textColor: "text-[#2562eb]",
-    iconImg: "/group-17.png",
-  },
-  {
-    id: 5,
-    symbol: "ETH/USD",
-    name: "Ethereum / US Dollar",
-    value: "3,487",
-    change: "+2.45%",
-    isPositive: true,
-    icon: "",
-    bgColor: "bg-[#f2e7ff]",
-    textColor: "text-[#2562eb]",
-    iconImg: "/group-18.png",
-  },
-];
-
-// Recent signals data
-const recentSignalsData = [
-  {
-    id: 1,
-    symbol: "BTC/USD",
-    action: "BUY",
-    isPositive: true,
-    date: "June 3, 2025 • 09:45 AM",
-    pips: "TP: +120 pips | SL: -40 pips",
-  },
-  {
-    id: 2,
-    symbol: "USD/JPY",
-    action: "SELL",
-    isPositive: false,
-    date: "June 3, 2025 • 08:30 AM",
-    pips: "TP: +45 pips | SL: -15 pips",
-  },
-  {
-    id: 3,
-    symbol: "EUR/USD",
-    action: "BUY",
-    isPositive: true,
-    date: "June 3, 2025 • 07:15 AM",
-    pips: "TP: +65 pips | SL: -25 pips",
-  },
-  {
-    id: 4,
-    symbol: "GBP/USD",
-    action: "SELL",
-    isPositive: false,
-    date: "June 2, 2025 • 04:50 PM",
-    pips: "TP: +55 pips | SL: -20 pips",
-  },
-];
 
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
@@ -151,9 +55,9 @@ export const AnalysisSection = (): JSX.Element => {
   }, []);
 
   return (
-    <div id="main-content-section" className="flex flex-wrap gap-8">
+    <div id="main-content-section" className="flex w-full gap-8">
       {/* Left column */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-[0_0_70%] min-w-0">
         <Card className="mb-6 shadow-sm">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -215,7 +119,7 @@ export const AnalysisSection = (): JSX.Element => {
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="15m">15m</SelectItem>
+                      <SelectItem value="30m">30m</SelectItem>
                       <SelectItem value="1h">1h</SelectItem>
                       <SelectItem value="4h">4h</SelectItem>
                       <SelectItem value="1d">1d</SelectItem>
@@ -254,13 +158,15 @@ export const AnalysisSection = (): JSX.Element => {
                 </Badge>
               </div>
 
-              <div className="rounded-2xl overflow-hidden mb-2 h-[300px] bg-red-300">
+              <div className="rounded-2xl overflow-hidden h-[300px] mb-2 h-g bg-red-300">
                 
               </div>
             </div>
           </CardContent>
         </Card>
-
+      </div>
+      {/* Right Side: AI Analysis Card */}
+      <div className="flex-[0_0_30%] min-w-[320px]">
         <Card className="shadow-sm">
           <CardContent className="p-6">
             <div className="flex justify-between items-center">
