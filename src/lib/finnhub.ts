@@ -4,26 +4,16 @@ export type SymbolInfo = { symbol: string; description: string };
 
 export async function getTopSymbols(): Promise<SymbolInfo[]> {
   const forexRes = await fetch(`https://finnhub.io/api/v1/forex/symbol?exchange=oanda&token=${API_KEY}`);
-  const cryptoRes = await fetch(`https://finnhub.io/api/v1/crypto/symbol?exchange=binance&token=${API_KEY}`);
 
   const forexData = await forexRes.json();
-  const cryptoData = await cryptoRes.json();
 
   const forexPairs: SymbolInfo[] = forexData
-    .slice(0, 200)
     .map((item: any) => ({
       symbol: item.displaySymbol,
       description: item.description.replace("Oanda", "")
     }));
 
-  const cryptoPairs: SymbolInfo[] = cryptoData
-    .slice(0, 200)
-    .map((item: any) => ({
-      symbol: item.displaySymbol,
-      description: item.description.replace("Binance", "")
-    }));
-
-  return [...forexPairs, ...cryptoPairs];
+  return [...forexPairs];
 }
 
 export async function getChartData(symbol: string, timeframe: string) {

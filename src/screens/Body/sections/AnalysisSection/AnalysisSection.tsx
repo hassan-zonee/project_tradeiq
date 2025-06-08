@@ -133,10 +133,10 @@ export const AnalysisSection = (): JSX.Element => {
         const symbols = await getTopSymbols();
         if (symbols && Array.isArray(symbols)) {
           setCurrencyPairs(symbols);
-          // If XAU/USD is not present, select the first available
-          if (!symbols.some(pair => pair.symbol === "XAU/USD")) {
-            setSelectedPair(symbols[0]?.symbol || "");
-          }
+          // On initial load, select XAU/USD if present, else first available
+          const xau = symbols.find(pair => pair.symbol === "XAU/USD");
+          setSelectedPair(xau ? xau.symbol : (symbols[0]?.symbol || ""));
+          setSearch(xau ? xau.symbol : (symbols[0]?.symbol || ""));
         } else {
           setPairsError("Invalid data format");
         }
@@ -191,7 +191,7 @@ export const AnalysisSection = (): JSX.Element => {
                             className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedPair === pair.symbol ? "bg-gray-100" : ""}`}
                             onMouseDown={() => {
                               setSelectedPair(pair.symbol);
-                              setSearch(""); // Clear search after selection
+                              setSearch(pair.symbol); // Show selected in input
                               setShowSuggestions(false);
                             }}
                           >
@@ -254,20 +254,8 @@ export const AnalysisSection = (): JSX.Element => {
                 </Badge>
               </div>
 
-              <div className="rounded-2xl overflow-hidden mb-2">
-                <img
-                  className="w-full h-96 object-cover"
-                  alt="Price chart"
-                  src="/img-200.png"
-                />
-              </div>
-
-              <div className="rounded-2xl overflow-hidden">
-                <img
-                  className="w-full h-24 object-cover"
-                  alt="Volume chart"
-                  src="/img-203.png"
-                />
+              <div className="rounded-2xl overflow-hidden mb-2 h-[300px] bg-red-300">
+                
               </div>
             </div>
           </CardContent>
@@ -287,88 +275,6 @@ export const AnalysisSection = (): JSX.Element => {
                 />
                 Analyze
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Right column */}
-      <div className="w-full md:w-[394px]">
-        <Card className="mb-6 shadow-sm">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-gray-800 text-xl mb-4">
-              Market Overview
-            </h3>
-
-            <div className="space-y-4">
-              {marketOverviewData.map((item) => (
-                <div key={item.id} className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <div
-                      className={`w-8 h-8 flex items-center justify-center ${item.bgColor} rounded-full mr-3`}
-                    >
-                      {item.iconImg ? (
-                        <img
-                          className="w-[13px] h-[13px]"
-                          alt={`${item.symbol} icon`}
-                          src={item.iconImg}
-                        />
-                      ) : (
-                        <span className={`${item.textColor} font-medium text-base`}>
-                          {item.icon}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-medium text-black text-base">
-                        {item.symbol}
-                      </div>
-                      <div className="text-[#6b7280] text-sm">
-                        {item.name}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-black font-semibold">{item.value}</div>
-                    <div
-                      className={`text-sm ${
-                        item.isPositive ? "text-[#059669]" : "text-[#dc2626]"
-                      }`}
-                    >
-                      {item.change}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-gray-800 text-xl mb-4">
-              Recent Signals
-            </h3>
-
-            <div className="space-y-4">
-              {recentSignalsData.map((signal) => (
-                <div key={signal.id} className="border-b pb-3 last:border-none">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-black font-semibold">{signal.symbol}</span>
-                    <Badge
-                      className={`text-xs px-2 py-1 rounded ${
-                        signal.isPositive
-                          ? "bg-[#dcfce7] text-[#15803d]"
-                          : "bg-[#fee2e2] text-[#b91c1c]"
-                      }`}
-                    >
-                      {signal.action}
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-[#6b7280] mb-1">{signal.date}</div>
-                  <div className="text-sm text-[#374151]">{signal.pips}</div>
-                </div>
-              ))}
             </div>
           </CardContent>
         </Card>
