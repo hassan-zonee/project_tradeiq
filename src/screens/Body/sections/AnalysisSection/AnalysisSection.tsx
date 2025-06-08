@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getTopSymbols, type SymbolInfo } from "../../../../lib/finnhub";
+import { getTopSymbols, type SymbolInfo } from "../../../../lib/chartsData";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
@@ -16,10 +16,16 @@ import { Separator } from "../../../../components/ui/separator";
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
   const [selectedPair, setSelectedPair] = useState<string>("XAU/USD");
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1h");
   const [loadingPairs, setLoadingPairs] = useState<boolean>(true);
   const [pairsError, setPairsError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Chart data state
+  const [chartData, setChartData] = useState<Array<{ time: number; open: number; high: number; low: number; close: number }>>([]);
+  const [chartLoading, setChartLoading] = useState<boolean>(false);
+  const [chartError, setChartError] = useState<string | null>(null);
 
   const filteredPairs = currencyPairs
     .filter(
@@ -28,6 +34,24 @@ export const AnalysisSection = (): JSX.Element => {
         pair.description.toLowerCase().includes(search.toLowerCase())
     )
     .slice(0, 10);
+
+  // Fetch chart data when selectedPair or selectedTimeframe changes
+  useEffect(() => {
+    if (!selectedPair || !selectedTimeframe) return;
+    setChartLoading(true);
+    setChartError(null);
+    setChartData([]);
+    import("../../../../lib/chartsData").then(({ getChartData }) => {
+      getChartData(selectedPair, selectedTimeframe)
+        .then((data: any[]) => {
+          setChartData(Array.isArray(data) ? data : []);
+        })
+        .catch((err: any) => {
+          setChartError("Failed to fetch chart data");
+        })
+        .finally(() => setChartLoading(false));
+    });
+  }, [selectedPair, selectedTimeframe]);
 
   useEffect(() => {
     const fetchPairs = async () => {
@@ -114,7 +138,7 @@ export const AnalysisSection = (): JSX.Element => {
                   <label className="text-sm font-medium text-[#374050] mb-1">
                     Timeframe
                   </label>
-                  <Select defaultValue="1h">
+                  <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
                     <SelectTrigger className="w-28 h-[42px] border-[#d0d5da]">
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
@@ -158,8 +182,37 @@ export const AnalysisSection = (): JSX.Element => {
                 </Badge>
               </div>
 
-              <div className="rounded-2xl overflow-hidden h-[300px] mb-2 h-g bg-red-300">
-                
+              <div className="rounded-2xl overflow-hidden h-[300px] mb-2 h-g bg-green-300 flex items-center justify-center">
+                {chartLoading ? (
+                  <span className="text-gray-500">Loading chart data...</span>
+                ) : chartError ? (
+                  <span className="text-red-500">{chartError}</span>
+                ) : chartData.length === 0 ? (
+                  <span className="text-gray-500">No data</span>
+                ) : (
+                  <table className="w-full text-xs text-center bg-white bg-opacity-80 rounded">
+                    <thead>
+                      <tr>
+                        <th className="px-2 py-1">Time</th>
+                        <th className="px-2 py-1">Open</th>
+                        <th className="px-2 py-1">High</th>
+                        <th className="px-2 py-1">Low</th>
+                        <th className="px-2 py-1">Close</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {chartData.slice(-10).map((candle, idx) => (
+                        <tr key={idx}>
+                          <td>{new Date(candle.time * 1000).toLocaleString()}</td>
+                          <td>{candle.open}</td>
+                          <td>{candle.high}</td>
+                          <td>{candle.low}</td>
+                          <td>{candle.close}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </CardContent>
