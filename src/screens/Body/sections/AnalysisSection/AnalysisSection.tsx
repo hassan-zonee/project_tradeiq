@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getTopSymbols, type SymbolInfo } from "../../../../lib/chartsData";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
@@ -11,11 +11,13 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 import { Separator } from "../../../../components/ui/separator";
+import { CandleChart } from "../../../../components/CandleChart";
+import type { CandlestickData } from "lightweight-charts";
 
 
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
-  const [selectedPair, setSelectedPair] = useState<string>("XAU/USD");
+  const [selectedPair, setSelectedPair] = useState<string>("");
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1h");
   const [loadingPairs, setLoadingPairs] = useState<boolean>(true);
   const [pairsError, setPairsError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Chart data state
-  const [chartData, setChartData] = useState<Array<{ time: number; open: number; high: number; low: number; close: number }>>([]);
+  const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [chartLoading, setChartLoading] = useState<boolean>(false);
   const [chartError, setChartError] = useState<string | null>(null);
 
@@ -47,7 +49,8 @@ export const AnalysisSection = (): JSX.Element => {
           setChartData(Array.isArray(data) ? data : []);
         })
         .catch((err: any) => {
-          setChartError("Failed to fetch chart data");
+          console.error(`Error fetching chart data for ${selectedPair} (${selectedTimeframe}):`, err);
+          setChartError(`Failed to fetch chart data for ${selectedPair}.`);
         })
         .finally(() => setChartLoading(false));
     });
@@ -69,8 +72,8 @@ export const AnalysisSection = (): JSX.Element => {
           setPairsError("Invalid data format");
         }
       } catch (error: any) {
-        console.error("Error fetching currency pairs:", error);
-        setPairsError("Failed to fetch");
+        console.error("Error fetching currency pairs (getTopSymbols):", error);
+        setPairsError("Failed to fetch currency pairs.");
       } finally {
         setLoadingPairs(false);
       }
@@ -143,6 +146,7 @@ export const AnalysisSection = (): JSX.Element => {
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="15m">15m</SelectItem>
                       <SelectItem value="30m">30m</SelectItem>
                       <SelectItem value="1h">1h</SelectItem>
                       <SelectItem value="4h">4h</SelectItem>
@@ -190,28 +194,7 @@ export const AnalysisSection = (): JSX.Element => {
                 ) : chartData.length === 0 ? (
                   <span className="text-gray-500">No data</span>
                 ) : (
-                  <table className="w-full text-xs text-center bg-white bg-opacity-80 rounded">
-                    <thead>
-                      <tr>
-                        <th className="px-2 py-1">Time</th>
-                        <th className="px-2 py-1">Open</th>
-                        <th className="px-2 py-1">High</th>
-                        <th className="px-2 py-1">Low</th>
-                        <th className="px-2 py-1">Close</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {chartData.slice(-10).map((candle, idx) => (
-                        <tr key={idx}>
-                          <td>{new Date(candle.time * 1000).toLocaleString()}</td>
-                          <td>{candle.open}</td>
-                          <td>{candle.high}</td>
-                          <td>{candle.low}</td>
-                          <td>{candle.close}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <CandleChart data={chartData} />
                 )}
               </div>
             </div>

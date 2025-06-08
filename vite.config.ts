@@ -11,4 +11,13 @@ export default defineConfig({
       plugins: [tailwind()],
     },
   },
+  server: {
+    proxy: {
+      '/binance-api': {
+        target: 'https://api.binance.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/binance-api/, ''),
+      },
+    },
+  },
 });
