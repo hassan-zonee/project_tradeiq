@@ -1,7 +1,6 @@
 import { HeaderSection } from "../screens/Body/sections/HeaderSection";
 import { AnalysisSection } from "../screens/Body/sections/AnalysisSection/AnalysisSection";
 import { FooterSection } from "../screens/Body/sections/FooterSection/FooterSection";
-import { Link } from "react-router-dom";
 
 export const AnalysisPage = () => (
   <div className="flex flex-col min-h-screen w-full bg-[#f9fafa]">
