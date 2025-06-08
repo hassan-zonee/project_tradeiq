@@ -1,20 +1,5 @@
-// src/app/api/symbols/route.ts
-import { getTopSymbols, getChartData } from "../../lib/finnhub";
-
-export async function GET(req: Request) {
-  try {
-    const symbols = await getTopSymbols();
-    return new Response(JSON.stringify({ symbols }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: "Failed to fetch symbols" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-}
+// src/app/api/chart/route.ts
+import { getChartData } from "../../../lib/finnhub";
 
 export async function GET(req: Request) {
   try {

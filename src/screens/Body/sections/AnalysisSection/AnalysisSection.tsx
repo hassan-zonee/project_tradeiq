@@ -174,12 +174,6 @@ export const AnalysisSection = (): JSX.Element => {
               <div className="flex gap-3 mb-4">
                 <Badge
                   variant="outline"
-                  className="bg-[#f2f4f5] text-[#374050] font-medium px-3 py-1 rounded-lg"
-                >
-                  Line
-                </Badge>
-                <Badge
-                  variant="outline"
                   className="bg-[#3b81f5] text-white font-medium px-3 py-1 rounded-lg"
                 >
                   Candlestick

@@ -19,8 +19,8 @@ export const Body = (): JSX.Element => {
     >
       <HeaderSection />
 
-      <main className="flex justify-center w-full px-4 md:px-20">
-        <div className="flex flex-col w-full max-w-screen-xl relative">
+      <main className="flex justify-center w-full">
+        <div className="flex flex-col w-full max-w-screen-xl relative -mt-10">
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

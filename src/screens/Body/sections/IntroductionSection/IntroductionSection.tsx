@@ -26,13 +26,13 @@ export const IntroductionSection = (): JSX.Element => {
           {/* Left Column - Text Content */}
           <div className="flex flex-col w-full lg:w-[calc(50%-24px)]">
             <div className="pb-6">
-              <h2 className="font-bold text-5xl leading-[48px] text-gray-800 font-['Roboto',Helvetica]">
+              <h2 className="font-bold text-4xl leading-[48px] text-gray-800 font-['Roboto',Helvetica]">
                 Transform Your Trading with AI-Powered Market Intelligence
               </h2>
             </div>
 
             <div className="pb-8">
-              <p className="text-xl leading-7 text-[#4a5462] font-['Roboto',Helvetica]">
+              <p className="text-base leading-7 text-[#4a5462] font-['Roboto',Helvetica]">
                 Experience the future of trading with TradeIQ&#39;s advanced
                 artificial intelligence. Get real-time analysis, precise
                 signals, and data-driven insights to make smarter trading
