@@ -12,7 +12,7 @@ import {
 } from "../../../../components/ui/select";
 import { Separator } from "../../../../components/ui/separator";
 import { CandleChart } from "../../../../components/CandleChart";
-import type { CandlestickData } from "lightweight-charts";
+import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 
 
 export const AnalysisSection = (): JSX.Element => {
@@ -37,23 +37,58 @@ export const AnalysisSection = (): JSX.Element => {
     )
     .slice(0, 10);
 
-  // Fetch chart data when selectedPair or selectedTimeframe changes
+  // Effect to fetch chart data when selectedPair or selectedTimeframe changes, and update periodically
   useEffect(() => {
-    if (!selectedPair || !selectedTimeframe) return;
-    setChartLoading(true);
-    setChartError(null);
-    setChartData([]);
-    import("../../../../lib/chartsData").then(({ getChartData }) => {
-      getChartData(selectedPair, selectedTimeframe)
-        .then((data: any[]) => {
-          setChartData(Array.isArray(data) ? data : []);
-        })
-        .catch((err: any) => {
-          console.error(`Error fetching chart data for ${selectedPair} (${selectedTimeframe}):`, err);
-          setChartError(`Failed to fetch chart data for ${selectedPair}.`);
-        })
-        .finally(() => setChartLoading(false));
-    });
+    if (!selectedPair || !selectedTimeframe) {
+      setChartData([]); // Clear chart data if no pair/timeframe is selected
+      return;
+    }
+
+    const fetchAndSetChartData = async (isInitialLoad = false) => {
+      if (isInitialLoad) {
+        setChartLoading(true); // Show loader only on initial load or pair/timeframe change
+      }
+      setChartError(null);
+      try {
+        // Dynamic import for getChartData
+        const { getChartData } = await import("../../../../lib/chartsData");
+        const rawData = await getChartData(selectedPair, selectedTimeframe);
+
+        if (Array.isArray(rawData)) {
+          const processedData: CandlestickData<Time>[] = rawData.map(d => ({
+            time: d.time as UTCTimestamp, // Explicitly cast time
+            open: d.open,
+            high: d.high,
+            low: d.low,
+            close: d.close,
+          }));
+          setChartData(processedData);
+        } else {
+          setChartData([]); // Set to empty array if data is not as expected
+          console.warn("Received non-array data from getChartData", rawData);
+        }
+      } catch (err: any) {
+        console.error(`Error fetching chart data for ${selectedPair} (${selectedTimeframe}):`, err);
+        setChartError(`Failed to fetch chart data for ${selectedPair}.`);
+        setChartData([]); // Clear data on error
+      } finally {
+        if (isInitialLoad) {
+          setChartLoading(false);
+        }
+      }
+    };
+
+    fetchAndSetChartData(true); // Initial fetch
+
+    const intervalId = setInterval(() => {
+      console.log(`Interval: Fetching chart data for ${selectedPair} ${selectedTimeframe} at ${new Date().toLocaleTimeString()}`);
+      fetchAndSetChartData(false); // Subsequent fetches are background updates
+    }, 5000);
+
+    return () => {
+      clearInterval(intervalId); // Cleanup interval on component unmount or when dependencies change
+      console.log(`Interval cleared for ${selectedPair} ${selectedTimeframe} at ${new Date().toLocaleTimeString()}`);
+    };
   }, [selectedPair, selectedTimeframe]);
 
   useEffect(() => {
@@ -176,7 +211,7 @@ export const AnalysisSection = (): JSX.Element => {
             <Separator className="bg-[#f2f4f5]" />
 
             <div className="">
-              <div className="rounded-2xl overflow-hidden h-[350px] mb-2 h-g bg-green-300 flex items-center justify-center">
+              <div className="rounded-2xl overflow-hidden h-[350px] mb-2 h-g flex items-center justify-center">
                 {chartLoading ? (
                   <span className="text-gray-500">Loading chart data...</span>
                 ) : chartError ? (
