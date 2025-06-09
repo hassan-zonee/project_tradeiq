@@ -10,7 +10,8 @@ import {
   Time,
   HistogramSeries,
   HistogramData,
-  LineStyle
+  LineStyle,
+  LineSeriesPartialOptions
 } from "lightweight-charts";
 
 // Helper function to calculate Exponential Moving Average (EMA)
@@ -217,6 +218,54 @@ const calculateMACD = (
 };
 
 
+
+// Helper function to calculate Bollinger Bands
+function calculateBollingerBands(
+  data: CandlestickData<Time>[],
+  period = 20,
+  k = 2 // Standard deviations
+): {
+  upper: LineData<Time>[];
+  middle: LineData<Time>[];
+  lower: LineData<Time>[];
+} {
+  const upperData: LineData<Time>[] = [];
+  const middleData: LineData<Time>[] = [];
+  const lowerData: LineData<Time>[] = [];
+
+  if (data.length < period) {
+    return { upper: upperData, middle: middleData, lower: lowerData };
+  }
+
+  for (let i = period - 1; i < data.length; i++) {
+    const currentSlice = data.slice(i - period + 1, i + 1);
+    const closes = currentSlice.map(d => d.close);
+    const currentTime = data[i].time;
+
+    const sma = closes.reduce((acc, val) => acc + val, 0) / period;
+    if (isNaN(sma)) continue; // Skip if SMA is not a number
+
+    middleData.push({ time: currentTime, value: sma });
+
+    let variance = 0;
+    for (const close of closes) {
+      variance += Math.pow(close - sma, 2);
+    }
+    const stdDev = Math.sqrt(variance / period);
+
+    const upperBandValue = sma + k * stdDev;
+    if (!isNaN(upperBandValue)) {
+      upperData.push({ time: currentTime, value: upperBandValue });
+    }
+
+    const lowerBandValue = sma - k * stdDev;
+    if (!isNaN(lowerBandValue)) {
+      lowerData.push({ time: currentTime, value: lowerBandValue });
+    }
+  }
+  return { upper: upperData, middle: middleData, lower: lowerData };
+}
+
 interface CandleChartProps {
   data: CandlestickData<Time>[];
   showIndicators?: boolean;
@@ -234,6 +283,9 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
   const ema50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ema200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const parabolicSARSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const bbUpperRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const bbMiddleRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const bbLowerRef = useRef<ISeriesApi<'Line'> | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -279,7 +331,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
       const dataLength = data.length;
       if (dataLength > 0) {
         const PADDING_BARS = 30 // Match this with timeScale.rightOffset if desired
-        const logicalFrom = Math.max(0, dataLength - 70); // Show latest 70 data points
+        const logicalFrom = Math.max(0, dataLength - 50); // Show latest 70 data points
         const logicalTo = (dataLength - 1) + PADDING_BARS; // Extend range by PADDING_BARS beyond the last data point
         chartRef.current.timeScale().setVisibleLogicalRange({ from: logicalFrom, to: logicalTo });
       }
@@ -334,6 +386,9 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     removeSeries(ema50SeriesRef);
     removeSeries(ema200SeriesRef);
     removeSeries(parabolicSARSeriesRef);
+    removeSeries(bbUpperRef);
+    removeSeries(bbMiddleRef);
+    removeSeries(bbLowerRef);
 
     if (showIndicators) {
       // Calculate and add RSI
@@ -455,6 +510,43 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
         if (parabolicSARSeriesRef.current) parabolicSARSeriesRef.current.setData(psarData);
       }
 
+
+      // Calculate and add Bollinger Bands
+      const { upper: bbUpperData, middle: bbMiddleData, lower: bbLowerData } = calculateBollingerBands(data);
+
+      const commonBBLineOptions: Omit<LineSeriesPartialOptions, 'color' | 'lineStyle'> = {
+        lineWidth: 1,
+        lastValueVisible: false,
+        priceLineVisible: false,
+        priceScaleId: 'right', // Ensure it's on the main price scale
+      };
+
+      if (bbUpperData.length > 0 && chart) {
+        bbUpperRef.current = chart.addSeries(LineSeries, {
+          ...commonBBLineOptions,
+          color: 'rgba(33, 150, 243, 0.5)', // Light Blue, slightly transparent
+          lineStyle: LineStyle.Solid,
+        });
+        if (bbUpperRef.current) bbUpperRef.current.setData(bbUpperData);
+      }
+
+      if (bbMiddleData.length > 0 && chart) {
+        bbMiddleRef.current = chart.addSeries(LineSeries, {
+          ...commonBBLineOptions,
+          color: 'rgba(255, 152, 0, 0.7)', // Orange for SMA basis
+          lineStyle: LineStyle.Dotted,
+        });
+        if (bbMiddleRef.current) bbMiddleRef.current.setData(bbMiddleData);
+      }
+
+      if (bbLowerData.length > 0 && chart) {
+        bbLowerRef.current = chart.addSeries(LineSeries, {
+          ...commonBBLineOptions,
+          color: 'rgba(33, 150, 243, 0.5)', // Light Blue, slightly transparent
+          lineStyle: LineStyle.Solid,
+        });
+        if (bbLowerRef.current) bbLowerRef.current.setData(bbLowerData);
+      }
       // chart.timeScale().fitContent(); // Ensure this is commented out or removed to maintain setVisibleLogicalRange
     } // End of if(showIndicators)
 
