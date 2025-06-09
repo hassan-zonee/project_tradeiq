@@ -179,8 +179,8 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
           horzLines: { color: '#e1e1e1' },
         },
         timeScale: {
-          rightOffset: 12,
-          barSpacing: 8,
+          rightOffset: 100,
+          barSpacing: 1,
           borderColor: '#cccccc',
           timeVisible: true,
           secondsVisible: false,
@@ -199,9 +199,17 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     }
 
     // Update candlestick data
-    if (candlestickSeriesRef.current && data && data.length > 0) {
+    if (chartRef.current && candlestickSeriesRef.current && data.length > 0) {
       candlestickSeriesRef.current.setData(data);
-      chartRef.current?.timeScale().fitContent(); // Fit content after data set
+      // Set a default visible range (e.g., last 20 bars)
+      const dataLength = data.length;
+      if (dataLength > 0) {
+        const logicalFrom = Math.max(0, dataLength - 70); // Show last 20 bars, or all if less than 20
+        const logicalTo = dataLength -1; 
+        chartRef.current.timeScale().setVisibleLogicalRange({ from: logicalFrom, to: logicalTo });
+      }
+    } else if (candlestickSeriesRef.current) {
+      candlestickSeriesRef.current.setData([]); // Clear data if `data` prop is empty
     }
     
     // Resize observer
@@ -317,7 +325,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
         });
       }
 
-      chart.timeScale().fitContent(); // Fit content after adding indicators
+      // chart.timeScale().fitContent(); // Ensure this is commented out or removed to maintain setVisibleLogicalRange
     } // End of if(showIndicators)
 
   }, [data, showIndicators]); // Re-run when data or showIndicators changes
