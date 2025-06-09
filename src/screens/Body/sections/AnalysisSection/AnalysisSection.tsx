@@ -29,8 +29,11 @@ export const AnalysisSection = (): JSX.Element => {
   const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [chartLoading, setChartLoading] = useState<boolean>(false);
   const [chartError, setChartError] = useState<string | null>(null);
-  const [showIndicators, setShowIndicators] = useState<boolean>(false);
-  const [isAnalysisLoading, setIsAnalysisLoading] = useState<boolean>(false);
+  const [showIndicators, setShowIndicators] = useState(false);
+  const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
+  const [signal, setSignal] = useState<'Buy' | 'Sell' | null>(null);
+  const [stopLoss, setStopLoss] = useState<string | null>(null);
+  const [takeProfit, setTakeProfit] = useState<string | null>(null);
 
   // State for displaying real-time pair data
   const [currentPriceDisplay, setCurrentPriceDisplay] = useState<string>("-");
@@ -144,11 +147,22 @@ export const AnalysisSection = (): JSX.Element => {
   const handleAnalyzeClick = () => {
     setIsAnalysisLoading(true);
     setShowIndicators(false); // Hide indicators immediately
+    setSignal(null); // Reset previous analysis data
+    setStopLoss(null);
+    setTakeProfit(null);
 
     console.log("Analysis started, loading overlay shown...");
 
     setTimeout(() => {
-      setShowIndicators(true); // Show indicators after delay
+      const randomSignal = Math.random() > 0.5 ? 'Buy' : 'Sell';
+      const randomStopLossPips = Math.floor(Math.random() * 25) + 5; // 5-29 pips
+      const randomTakeProfitPips = Math.floor(Math.random() * 50) + 10; // 10-59 pips
+
+      setSignal(randomSignal);
+      setStopLoss(`${randomStopLossPips} pips`);
+      setTakeProfit(`${randomTakeProfitPips} pips`);
+      
+      setShowIndicators(true);
       setIsAnalysisLoading(false);
       console.log("Analysis complete, indicators shown.");
     }, 5000); // 5 seconds delay
@@ -335,19 +349,33 @@ export const AnalysisSection = (): JSX.Element => {
               {/* Signal */}
               <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-800 text-lg mb-1">Signal</h4>
-                <p className="text-gray-600">Buy / Sell based on analysis</p>
+                {isAnalysisLoading ? (
+                  <div className="h-5 w-3/4 bg-gray-300 rounded animate-pulse mt-1"></div>
+                ) : (
+                  <p className={`font-semibold text-lg ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}`}>
+                    {signal || 'N/A'}
+                  </p>
+                )}
               </div>
 
               {/* Stoploss */}
               <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-800 text-lg mb-1">Stop Loss</h4>
-                <p className="text-gray-600">Suggested stoploss level</p>
+                {isAnalysisLoading ? (
+                  <div className="h-5 w-1/2 bg-gray-300 rounded animate-pulse mt-1"></div>
+                ) : (
+                  <p className="text-red-500 font-bold">{stopLoss || 'N/A'}</p>
+                )}
               </div>
 
               {/* Take Profit */}
               <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-800 text-lg mb-1">Take Profit</h4>
-                <p className="text-gray-600">Target take profit level</p>
+                {isAnalysisLoading ? (
+                  <div className="h-5 w-1/2 bg-gray-300 rounded animate-pulse mt-1"></div>
+                ) : (
+                  <p className="text-green-600 font-bold">{takeProfit || 'N/A'}</p>
+                )}
               </div>
             </div>
           </CardContent>
