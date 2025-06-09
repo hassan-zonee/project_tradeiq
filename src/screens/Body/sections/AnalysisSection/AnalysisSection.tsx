@@ -14,6 +14,26 @@ import { Separator } from "../../../../components/ui/separator";
 import { CandleChart } from "../../../../components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 
+// Simple Loading Overlay Component
+const LoadingOverlay = () => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+    color: 'white',
+    fontSize: '2rem',
+  }}>
+    Loading Analysis...
+  </div>
+);
+
 
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
@@ -28,6 +48,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [chartLoading, setChartLoading] = useState<boolean>(false);
   const [chartError, setChartError] = useState<string | null>(null);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState<boolean>(false);
 
   const filteredPairs = currencyPairs
     .filter(
@@ -91,6 +112,13 @@ export const AnalysisSection = (): JSX.Element => {
     };
   }, [selectedPair, selectedTimeframe]);
 
+  const handleAnalyzeClick = () => {
+    setShowLoadingOverlay(true);
+    setTimeout(() => {
+      setShowLoadingOverlay(false);
+    }, 5000); // Overlay disappears after 5 seconds
+  };
+
   useEffect(() => {
     const fetchPairs = async () => {
       setLoadingPairs(true);
@@ -117,7 +145,9 @@ export const AnalysisSection = (): JSX.Element => {
   }, []);
 
   return (
-    <div id="main-content-section" className="flex flex-col lg:flex-row w-full gap-4">
+    <>
+      {showLoadingOverlay && <LoadingOverlay />}
+      <div id="main-content-section" className="flex flex-col lg:flex-row w-full gap-4">
       {/* Left column */}
       <div className="w-full lg:flex-[0_0_70%] lg:min-w-0">
         <Card className="mb-6 shadow-sm">
@@ -190,6 +220,16 @@ export const AnalysisSection = (): JSX.Element => {
                 </div>
               </div>
 
+              {/* Placeholder Analyze Button */}
+              <div className="flex flex-col justify-end">
+                <Button 
+                  onClick={handleAnalyzeClick} 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-[42px] px-6 rounded-md shadow-md transition duration-150 ease-in-out transform hover:scale-105 active:scale-95"
+                >
+                  Analyze
+                </Button>
+              </div>
+
               <div className="flex flex-col">
                 <div className="flex items-center">
                   <span className="font-bold text-gray-800 text-2xl mr-2">
@@ -226,15 +266,20 @@ export const AnalysisSection = (): JSX.Element => {
           </CardContent>
         </Card>
       </div>
-      {/* Right Side: AI Analysis Card */}
-      <div className="w-full lg:flex-[0_0_30%] lg:min-w-[320px]">
+      {/* Right column (Analysis, Signals, etc.) */}
+      <div className="w-full lg:flex-[0_0_30%] lg:min-w-0 space-y-6">
+        
+        {/* Market Overview Card */}
         <Card className="shadow-sm">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
               <h3 className="font-semibold text-gray-800 text-xl">
                 AI Analysis
               </h3>
-              <Button className="bg-[#3b81f5] text-white">
+              <Button 
+                onClick={handleAnalyzeClick} 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-[42px] px-6 rounded-md shadow-md transition duration-150 ease-in-out transform hover:scale-105 active:scale-95"
+              >
                 <img
                   className="w-3 h-3.5 mr-2"
                   alt="AI icon"
@@ -246,6 +291,7 @@ export const AnalysisSection = (): JSX.Element => {
           </CardContent>
         </Card>
       </div>
-    </div>
+          </div>
+    </>
   );
 };
