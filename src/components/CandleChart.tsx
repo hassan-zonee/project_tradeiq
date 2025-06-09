@@ -7,7 +7,9 @@ import {
   LineSeries,
   CandlestickData,
   LineData,
-  Time
+  Time,
+  HistogramSeries,
+  HistogramData
 } from "lightweight-charts";
 
 // Helper function to calculate Simple Moving Average (SMA)
@@ -21,6 +23,28 @@ const calculateSMA = (data: CandlestickData<Time>[], period: number): LineData<T
     smaData.push({ time: data[i].time, value: sum / period });
   }
   return smaData;
+};
+
+// Helper function to calculate Exponential Moving Average (EMA)
+const calculateEMA = (data: CandlestickData<Time>[], period: number): LineData<Time>[] => {
+  const emaData: LineData<Time>[] = [];
+  if (data.length < period) return emaData;
+
+  const k = 2 / (period + 1);
+  // First EMA is an SMA
+  let sumForSma = 0;
+  for (let i = 0; i < period; i++) {
+    sumForSma += data[i].close;
+  }
+  let prevEma = sumForSma / period;
+  emaData.push({ time: data[period - 1].time, value: prevEma });
+
+  for (let i = period; i < data.length; i++) {
+    const currentEma = (data[i].close * k) + (prevEma * (1 - k));
+    emaData.push({ time: data[i].time, value: currentEma });
+    prevEma = currentEma;
+  }
+  return emaData;
 };
 
 // Helper function to calculate Relative Strength Index (RSI)
@@ -74,6 +98,68 @@ const calculateRSI = (data: CandlestickData<Time>[], period: number = 14): LineD
   return rsiData;
 };
 
+// Helper function to calculate MACD
+interface MACDOutput {
+  macdLine: LineData<Time>[];
+  signalLine: LineData<Time>[];
+  histogram: HistogramData<Time>[];
+}
+
+const calculateMACD = (
+  data: CandlestickData<Time>[],
+  fastPeriod: number = 12,
+  slowPeriod: number = 26,
+  signalPeriod: number = 9
+): MACDOutput => {
+  const macdLine: LineData<Time>[] = [];
+  const signalLine: LineData<Time>[] = [];
+  const histogram: HistogramData<Time>[] = [];
+
+  if (data.length < slowPeriod) return { macdLine, signalLine, histogram };
+
+  const fastEMACalc = calculateEMA(data, fastPeriod);
+  const slowEMACalc = calculateEMA(data, slowPeriod);
+
+  // Align EMAs and calculate MACD line
+  // EMAs might have different starting points, so we need to align them by time
+  const alignedMacdValues: { time: Time; value: number }[] = [];
+  let slowIdx = 0;
+  for (let i = 0; i < fastEMACalc.length; i++) {
+    const fastPoint = fastEMACalc[i];
+    while (slowIdx < slowEMACalc.length && slowEMACalc[slowIdx].time < fastPoint.time) {
+      slowIdx++;
+    }
+    if (slowIdx < slowEMACalc.length && slowEMACalc[slowIdx].time === fastPoint.time) {
+      const macdValue = fastPoint.value - slowEMACalc[slowIdx].value;
+      macdLine.push({ time: fastPoint.time, value: macdValue });
+      alignedMacdValues.push({ time: fastPoint.time, value: macdValue });
+    }
+  }
+
+  if (alignedMacdValues.length < signalPeriod) return { macdLine, signalLine, histogram };
+
+  // Calculate Signal line (EMA of MACD line)
+  // We need to convert MACD values to CandlestickData-like structure for calculateEMA
+  const macdForSignalEMA: CandlestickData<Time>[] = alignedMacdValues.map(p => ({ time: p.time, open: p.value, high: p.value, low: p.value, close: p.value }));
+  const signalLineCalc = calculateEMA(macdForSignalEMA, signalPeriod);
+  signalLine.push(...signalLineCalc);
+  
+  // Align MACD and Signal lines and calculate Histogram
+  let signalIdx = 0;
+  for (let i = 0; i < macdLine.length; i++) {
+    const macdPoint = macdLine[i];
+    while (signalIdx < signalLine.length && signalLine[signalIdx].time < macdPoint.time) {
+      signalIdx++;
+    }
+    if (signalIdx < signalLine.length && signalLine[signalIdx].time === macdPoint.time) {
+      const histValue = macdPoint.value - signalLine[signalIdx].value;
+      histogram.push({ time: macdPoint.time, value: histValue, color: histValue >= 0 ? 'rgba(0, 150, 136, 0.8)' : 'rgba(255, 82, 82, 0.8)' });
+    }
+  }
+
+  return { macdLine, signalLine, histogram };
+};
+
 
 interface CandleChartProps {
   data: CandlestickData<Time>[];
@@ -88,6 +174,10 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
   const sma20SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const sma50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const rsiSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const ema12SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const macdLineSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const macdSignalSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const macdHistogramSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -174,6 +264,10 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     removeSeries(sma20SeriesRef);
     removeSeries(sma50SeriesRef);
     removeSeries(rsiSeriesRef);
+    removeSeries(ema12SeriesRef);
+    removeSeries(macdLineSeriesRef);
+    removeSeries(macdSignalSeriesRef);
+    removeSeries(macdHistogramSeriesRef);
 
     if (showIndicators) {
       // Calculate and add SMAs
@@ -204,14 +298,20 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
       }
 
       if (sma50Data.length > 0) {
-        sma50SeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(220, 20, 60, 0.8)', // Crimson
+        if (sma50SeriesRef.current) sma50SeriesRef.current.setData(sma50Data);
+      }
+
+      // Calculate and add EMA
+      const ema12Data = calculateEMA(data, 12);
+      if (ema12Data.length > 0) {
+        ema12SeriesRef.current = chart.addSeries(LineSeries, {
+          color: 'rgba(75, 0, 130, 0.8)', // Indigo
           lineWidth: 2,
           lastValueVisible: false,
           priceLineVisible: false,
           priceScaleId: 'right',
         });
-        if (sma50SeriesRef.current) sma50SeriesRef.current.setData(sma50Data);
+        if (ema12SeriesRef.current) ema12SeriesRef.current.setData(ema12Data);
       }
 
       // Calculate and add RSI
@@ -239,11 +339,51 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
         // Ensure the RSI pane's price scale is configured if needed
         // chart.priceScale('').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } }); // Example for RSI pane margins
       }
-      chart.timeScale().fitContent(); // Fit content after adding indicators
-    }
+      // Calculate and add MACD
+      const { macdLine, signalLine, histogram: macdHistogram } = calculateMACD(data);
+      const macdPaneId = 'macdPane'; // Unique ID for MACD pane's price scale
 
-    // No specific cleanup needed here for this effect if series are managed by refs
-    // The chart instance itself is cleaned up when the component unmounts (from the first useEffect)
+      if (macdLine.length > 0) {
+        macdLineSeriesRef.current = chart.addSeries(LineSeries, {
+          color: 'rgba(0, 120, 255, 0.8)', // Blue for MACD line
+          lineWidth: 2,
+          priceScaleId: macdPaneId,
+          lastValueVisible: false,
+          priceLineVisible: false,
+        });
+        macdLineSeriesRef.current.setData(macdLine);
+      }
+
+      if (signalLine.length > 0) {
+        macdSignalSeriesRef.current = chart.addSeries(LineSeries, {
+          color: 'rgba(255, 100, 0, 0.8)', // Orange for Signal line
+          lineWidth: 2,
+          priceScaleId: macdPaneId,
+          lastValueVisible: false,
+          priceLineVisible: false,
+        });
+        macdSignalSeriesRef.current.setData(signalLine);
+      }
+
+      if (macdHistogram.length > 0) {
+        macdHistogramSeriesRef.current = chart.addSeries(HistogramSeries, {
+          priceScaleId: macdPaneId,
+          // Colors are set in the data points for positive/negative values
+          lastValueVisible: false,
+        });
+        macdHistogramSeriesRef.current.setData(macdHistogram);
+      }
+      
+      // Configure the MACD pane's price scale if series were added
+      if (macdLine.length > 0 || signalLine.length > 0 || macdHistogram.length > 0) {
+        chart.priceScale(macdPaneId).applyOptions({
+            scaleMargins: { top: 0.7, bottom: 0 }, // Adjust margins for MACD pane
+            // You might want to adjust other options like `entireTextOnly` or `drawTicks`
+        });
+      }
+
+      chart.timeScale().fitContent(); // Fit content after adding indicators
+    } // End of if(showIndicators)
 
   }, [data, showIndicators]); // Re-run when data or showIndicators changes
 
