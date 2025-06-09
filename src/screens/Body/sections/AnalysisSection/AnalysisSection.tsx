@@ -311,8 +311,6 @@ export const AnalysisSection = (): JSX.Element => {
       </div>
       {/* Right column (Analysis, Signals, etc.) */}
       <div className="w-full lg:flex-[0_0_30%] lg:min-w-0 space-y-6">
-        
-        {/* Market Overview Card */}
         <Card className="shadow-sm">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
@@ -334,7 +332,7 @@ export const AnalysisSection = (): JSX.Element => {
           </CardContent>
         </Card>
       </div>
-          </div>
+    </div>
     </>
   );
 };
