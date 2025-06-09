@@ -14,47 +14,7 @@ import { Separator } from "../../../../components/ui/separator";
 import { CandleChart } from "../../../../components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 
-// Simple Loading Overlay Component
-const LoadingOverlay = () => {
-  const spinnerStyle: React.CSSProperties = {
-    border: '4px solid rgba(255, 255, 255, 0.3)',
-    borderTop: '4px solid white',
-    borderRadius: '50%',
-    width: '40px',
-    height: '40px',
-    animation: 'spin 1s linear infinite',
-    marginRight: '20px',
-  };
 
-  const keyframes = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      display: 'flex',
-      flexDirection: 'row', // Align spinner and text horizontally
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 9999,
-      color: 'white',
-      fontSize: '2rem',
-    }}>
-      <style>{keyframes}</style> {/* Inject keyframes into the document */}
-      <div style={spinnerStyle}></div>
-      Analyzing...
-    </div>
-  );
-};
 
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
@@ -69,7 +29,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [chartLoading, setChartLoading] = useState<boolean>(false);
   const [chartError, setChartError] = useState<string | null>(null);
-  const [showLoadingOverlay, setShowLoadingOverlay] = useState<boolean>(false);
+  const [showIndicators, setShowIndicators] = useState<boolean>(false);
 
   // State for displaying real-time pair data
   const [currentPriceDisplay, setCurrentPriceDisplay] = useState<string>("-");
@@ -181,10 +141,16 @@ export const AnalysisSection = (): JSX.Element => {
   }, [selectedPair, selectedTimeframe]);
 
   const handleAnalyzeClick = () => {
-    setShowLoadingOverlay(true);
-    setTimeout(() => {
-      setShowLoadingOverlay(false);
-    }, 5000); // Overlay disappears after 5 seconds
+    // Toggle indicator visibility
+    setShowIndicators(prev => !prev);
+
+    // Optional: show overlay for a brief period if calculations are heavy
+    // For now, we directly toggle. If indicator calculation is slow, 
+    // we can re-introduce an overlay linked to the calculation process.
+    // setShowLoadingOverlay(true);
+    // setTimeout(() => {
+    //   setShowLoadingOverlay(false);
+    // }, 1000); // Example: show overlay for 1 second
   };
 
   useEffect(() => {
@@ -214,7 +180,6 @@ export const AnalysisSection = (): JSX.Element => {
 
   return (
     <>
-      {showLoadingOverlay && <LoadingOverlay />}
       <div id="main-content-section" className="flex flex-col lg:flex-row w-full gap-4">
       {/* Left column */}
       <div className="w-full lg:flex-[0_0_70%] lg:min-w-0">
@@ -321,7 +286,7 @@ export const AnalysisSection = (): JSX.Element => {
                 ) : chartData.length === 0 ? (
                   <span className="text-gray-500">No data</span>
                 ) : (
-                  <CandleChart data={chartData} />
+                  <CandleChart data={chartData} showIndicators={showIndicators} />
                 )}
               </div>
             </div>
