@@ -161,6 +161,9 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
   const macdLineSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const macdSignalSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const macdHistogramSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
+  const ema21SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const ema50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const ema200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -257,6 +260,9 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     removeSeries(macdLineSeriesRef);
     removeSeries(macdSignalSeriesRef);
     removeSeries(macdHistogramSeriesRef);
+    removeSeries(ema21SeriesRef);
+    removeSeries(ema50SeriesRef);
+    removeSeries(ema200SeriesRef);
 
     if (showIndicators) {
       // Calculate and add RSI
@@ -325,6 +331,43 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
             scaleMargins: { top: 0.7, bottom: 0 }, // Adjust margins for MACD pane
             // You might want to adjust other options like `entireTextOnly` or `drawTicks`
         });
+      }
+
+      // Calculate and add EMAs
+      const ema21Data = calculateEMA(data, 21);
+      if (ema21Data.length > 0) {
+        ema21SeriesRef.current = chart.addSeries(LineSeries, {
+          color: 'rgba(255, 215, 0, 0.8)', // Gold for EMA 21
+          lineWidth: 1,
+          priceScaleId: 'right', // Main price scale
+          lastValueVisible: false,
+          priceLineVisible: false,
+        });
+        ema21SeriesRef.current.setData(ema21Data);
+      }
+
+      const ema50Data = calculateEMA(data, 50);
+      if (ema50Data.length > 0) {
+        ema50SeriesRef.current = chart.addSeries(LineSeries, {
+          color: 'rgba(30, 144, 255, 0.8)', // Dodger Blue for EMA 50
+          lineWidth: 1,
+          priceScaleId: 'right', // Main price scale
+          lastValueVisible: false,
+          priceLineVisible: false,
+        });
+        ema50SeriesRef.current.setData(ema50Data);
+      }
+
+      const ema200Data = calculateEMA(data, 200);
+      if (ema200Data.length > 0) {
+        ema200SeriesRef.current = chart.addSeries(LineSeries, {
+          color: 'rgba(138, 43, 226, 0.8)', // BlueViolet for EMA 200
+          lineWidth: 2, // Thicker for the longest EMA
+          priceScaleId: 'right', // Main price scale
+          lastValueVisible: false,
+          priceLineVisible: false,
+        });
+        ema200SeriesRef.current.setData(ema200Data);
       }
 
       // chart.timeScale().fitContent(); // Ensure this is commented out or removed to maintain setVisibleLogicalRange
