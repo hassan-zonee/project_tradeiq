@@ -170,11 +170,10 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
-  const sma10SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
-  const sma20SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const sma21SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const sma50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const sma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const rsiSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
-  const ema12SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const macdLineSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const macdSignalSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const macdHistogramSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
@@ -260,58 +259,51 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     };
 
     // Clear previous indicators before drawing new ones or if showIndicators is false
-    removeSeries(sma10SeriesRef);
-    removeSeries(sma20SeriesRef);
+    removeSeries(sma21SeriesRef);
     removeSeries(sma50SeriesRef);
+    removeSeries(sma200SeriesRef);
     removeSeries(rsiSeriesRef);
-    removeSeries(ema12SeriesRef);
     removeSeries(macdLineSeriesRef);
     removeSeries(macdSignalSeriesRef);
     removeSeries(macdHistogramSeriesRef);
 
     if (showIndicators) {
       // Calculate and add SMAs
-      const sma10Data = calculateSMA(data, 10);
-      const sma20Data = calculateSMA(data, 20);
+      const sma21Data = calculateSMA(data, 21);
       const sma50Data = calculateSMA(data, 50);
+      const sma200Data = calculateSMA(data, 200);
 
-      if (sma10Data.length > 0) {
-        sma10SeriesRef.current = chart.addSeries(LineSeries, {
+      if (sma21Data.length > 0) {
+        sma21SeriesRef.current = chart.addSeries(LineSeries, {
           color: 'rgba(255, 165, 0, 0.8)', // Orange
           lineWidth: 2,
           lastValueVisible: false,
           priceLineVisible: false,
           priceScaleId: 'right', // Attach to main price scale
         });
-        if (sma10SeriesRef.current) sma10SeriesRef.current.setData(sma10Data);
+        if (sma21SeriesRef.current) sma21SeriesRef.current.setData(sma21Data);
       }
 
-      if (sma20Data.length > 0) {
-        sma20SeriesRef.current = chart.addSeries(LineSeries, {
+      if (sma50Data.length > 0) {
+        sma50SeriesRef.current = chart.addSeries(LineSeries, {
           color: 'rgba(30, 144, 255, 0.8)', // DodgerBlue
           lineWidth: 2,
           lastValueVisible: false,
           priceLineVisible: false,
           priceScaleId: 'right',
         });
-        if (sma20SeriesRef.current) sma20SeriesRef.current.setData(sma20Data);
-      }
-
-      if (sma50Data.length > 0) {
         if (sma50SeriesRef.current) sma50SeriesRef.current.setData(sma50Data);
       }
 
-      // Calculate and add EMA
-      const ema12Data = calculateEMA(data, 12);
-      if (ema12Data.length > 0) {
-        ema12SeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(75, 0, 130, 0.8)', // Indigo
-          lineWidth: 2,
-          lastValueVisible: false,
-          priceLineVisible: false,
-          priceScaleId: 'right',
+      if (sma200Data.length > 0) {
+        sma200SeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(220, 20, 60, 0.8)', // Crimson (re-using old SMA50 color)
+            lineWidth: 2,
+            lastValueVisible: false,
+            priceLineVisible: false,
+            priceScaleId: 'right',
         });
-        if (ema12SeriesRef.current) ema12SeriesRef.current.setData(ema12Data);
+        if (sma200SeriesRef.current) sma200SeriesRef.current.setData(sma200Data);
       }
 
       // Calculate and add RSI
