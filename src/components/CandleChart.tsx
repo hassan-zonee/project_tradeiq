@@ -16,6 +16,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data }) => {
         height: chartContainerRef.current.clientHeight,
         timeScale: {
           rightOffset: 20,
+          barSpacing: 7, // This acts like zoom (lower = more candles, higher = fewer)
         },
       });
 

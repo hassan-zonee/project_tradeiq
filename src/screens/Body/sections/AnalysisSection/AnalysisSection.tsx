@@ -15,25 +15,46 @@ import { CandleChart } from "../../../../components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 
 // Simple Loading Overlay Component
-const LoadingOverlay = () => (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999,
-    color: 'white',
-    fontSize: '2rem',
-  }}>
-    Loading Analysis...
-  </div>
-);
+const LoadingOverlay = () => {
+  const spinnerStyle: React.CSSProperties = {
+    border: '4px solid rgba(255, 255, 255, 0.3)',
+    borderTop: '4px solid white',
+    borderRadius: '50%',
+    width: '40px',
+    height: '40px',
+    animation: 'spin 1s linear infinite',
+    marginRight: '20px',
+  };
 
+  const keyframes = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      display: 'flex',
+      flexDirection: 'row', // Align spinner and text horizontally
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999,
+      color: 'white',
+      fontSize: '2rem',
+    }}>
+      <style>{keyframes}</style> {/* Inject keyframes into the document */}
+      <div style={spinnerStyle}></div>
+      Analyzing...
+    </div>
+  );
+};
 
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
@@ -218,16 +239,6 @@ export const AnalysisSection = (): JSX.Element => {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              {/* Placeholder Analyze Button */}
-              <div className="flex flex-col justify-end">
-                <Button 
-                  onClick={handleAnalyzeClick} 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-[42px] px-6 rounded-md shadow-md transition duration-150 ease-in-out transform hover:scale-105 active:scale-95"
-                >
-                  Analyze
-                </Button>
               </div>
 
               <div className="flex flex-col">
