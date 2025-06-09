@@ -311,12 +311,12 @@ export const AnalysisSection = (): JSX.Element => {
       </div>
       {/* Right column (Analysis, Signals, etc.) */}
       <div className="w-full lg:flex-[0_0_30%] lg:min-w-0 space-y-6">
+        {/* AI Analysis Card with Inner Cards */}
         <Card className="shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-6 space-y-6">
+            {/* Header Row */}
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-              <h3 className="font-semibold text-gray-800 text-xl">
-                AI Analysis
-              </h3>
+              <h3 className="font-semibold text-gray-800 text-xl">AI Analysis</h3>
               <Button 
                 onClick={handleAnalyzeClick} 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-[42px] px-6 rounded-md shadow-md transition duration-150 ease-in-out transform hover:scale-105 active:scale-95"
@@ -329,9 +329,32 @@ export const AnalysisSection = (): JSX.Element => {
                 Analyze
               </Button>
             </div>
+
+            {/* Sections: Signal, Stoploss, Take Profit */}
+            <div className="flex flex-col gap-4">
+              {/* Signal */}
+              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
+                <h4 className="font-semibold text-gray-800 text-lg mb-1">Signal</h4>
+                <p className="text-gray-600">Buy / Sell based on analysis</p>
+              </div>
+
+              {/* Stoploss */}
+              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
+                <h4 className="font-semibold text-gray-800 text-lg mb-1">Stop Loss</h4>
+                <p className="text-gray-600">Suggested stoploss level</p>
+              </div>
+
+              {/* Take Profit */}
+              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
+                <h4 className="font-semibold text-gray-800 text-lg mb-1">Take Profit</h4>
+                <p className="text-gray-600">Target take profit level</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+
     </div>
     </>
   );
