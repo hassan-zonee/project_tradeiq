@@ -71,6 +71,12 @@ export const AnalysisSection = (): JSX.Element => {
   const [chartError, setChartError] = useState<string | null>(null);
   const [showLoadingOverlay, setShowLoadingOverlay] = useState<boolean>(false);
 
+  // State for displaying real-time pair data
+  const [currentPriceDisplay, setCurrentPriceDisplay] = useState<string>("-");
+  const [priceChangeDisplay, setPriceChangeDisplay] = useState<string>("-");
+  const [priceChangeDirection, setPriceChangeDirection] = useState<'up' | 'down' | 'neutral'>('neutral');
+  const [lastUpdateTimestampDisplay, setLastUpdateTimestampDisplay] = useState<string>("-");
+
   const filteredPairs = currencyPairs
     .filter(
       pair =>
@@ -105,14 +111,55 @@ export const AnalysisSection = (): JSX.Element => {
             close: d.close,
           }));
           setChartData(processedData);
+          if (processedData && processedData.length > 0) {
+            const latestCandle = processedData[processedData.length - 1];
+            setCurrentPriceDisplay(latestCandle.close.toFixed(4));
+
+            // Format date like "Month Day, Year"
+            const date = new Date(latestCandle.time as number * 1000); // Assuming time is UNIX timestamp in seconds
+            setLastUpdateTimestampDisplay(date.toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            }));
+
+            let percentChange = 0;
+            if (processedData.length > 1) {
+              const previousCandle = processedData[processedData.length - 2];
+              if (previousCandle.close !== 0) {
+                 percentChange = ((latestCandle.close - previousCandle.close) / previousCandle.close) * 100;
+              }
+            } else if (latestCandle.open !== 0) { // Use open if only one candle
+              percentChange = ((latestCandle.close - latestCandle.open) / latestCandle.open) * 100;
+            }
+
+            setPriceChangeDisplay(`${percentChange >= 0 ? '+' : ''}${percentChange.toFixed(2)}%`);
+            if (percentChange > 0) setPriceChangeDirection('up');
+            else if (percentChange < 0) setPriceChangeDirection('down');
+            else setPriceChangeDirection('neutral');
+
+          } else {
+            setCurrentPriceDisplay("-");
+            setPriceChangeDisplay("-");
+            setPriceChangeDirection('neutral');
+            setLastUpdateTimestampDisplay("-");
+          }
         } else {
           setChartData([]); // Set to empty array if data is not as expected
           console.warn("Received non-array data from getChartData", rawData);
+          setCurrentPriceDisplay("-");
+          setPriceChangeDisplay("-");
+          setPriceChangeDirection('neutral');
+          setLastUpdateTimestampDisplay("-");
         }
       } catch (err: any) {
         console.error(`Error fetching chart data for ${selectedPair} (${selectedTimeframe}):`, err);
         setChartError(`Failed to fetch chart data for ${selectedPair}.`);
         setChartData([]); // Clear data on error
+        setCurrentPriceDisplay("-");
+        setPriceChangeDisplay("-");
+        setPriceChangeDirection('neutral');
+        setLastUpdateTimestampDisplay("-");
       } finally {
         if (isInitialLoad) {
           setChartLoading(false);
@@ -241,20 +288,24 @@ export const AnalysisSection = (): JSX.Element => {
                 </div>
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-[180px]">
                 <div className="flex items-center">
                   <span className="font-bold text-gray-800 text-2xl mr-2">
-                    1.0875
+                    {currentPriceDisplay}
                   </span>
                   <Badge
                     variant="outline"
-                    className="bg-[#dbfbe7] text-[#166533] font-medium px-2 py-1 rounded-lg"
+                    className={`font-medium px-2 py-1 rounded-lg ${ 
+                      priceChangeDirection === 'up' ? 'bg-green-100 text-green-700' : 
+                      priceChangeDirection === 'down' ? 'bg-red-100 text-red-700' : 
+                      'bg-gray-100 text-gray-700'
+                    }`}
                   >
-                    +0.24%
+                    {priceChangeDisplay}
                   </Badge>
                 </div>
-                <span className="text-[#6a7280] text-sm">
-                  EUR/USD • June 3, 2025
+                <span className="text-[#6a7280] text-sm truncate">
+                  {selectedPair || "N/A"} • {lastUpdateTimestampDisplay}
                 </span>
               </div>
             </div>
