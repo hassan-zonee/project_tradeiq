@@ -179,8 +179,8 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
           horzLines: { color: '#e1e1e1' },
         },
         timeScale: {
-          rightOffset: 300, // Aggressive test value
-          barSpacing: 8,    // Recommended for better visibility
+          rightOffset: 15, // Number of bars for padding
+          barSpacing: 8,
           borderColor: '#cccccc',
           timeVisible: true,
           secondsVisible: false,
@@ -202,15 +202,14 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     if (chartRef.current && candlestickSeriesRef.current && data.length > 0) {
       candlestickSeriesRef.current.setData(data);
 
-      // Temporarily comment out setVisibleLogicalRange and use fitContent to test rightOffset
-      // const dataLength = data.length;
-      // if (dataLength > 0) {
-      //   const logicalFrom = Math.max(0, dataLength - 70);
-      //   const logicalTo = dataLength - 1; 
-      //   chartRef.current.timeScale().setVisibleLogicalRange({ from: logicalFrom, to: logicalTo });
-      // }
-      chartRef.current.timeScale().fitContent(); // Test with fitContent
-
+      // Set a default visible range to show the last 70 candles with padding
+      const dataLength = data.length;
+      if (dataLength > 0) {
+        const PADDING_BARS = 30 // Match this with timeScale.rightOffset if desired
+        const logicalFrom = Math.max(0, dataLength - 70); // Show latest 70 data points
+        const logicalTo = (dataLength - 1) + PADDING_BARS; // Extend range by PADDING_BARS beyond the last data point
+        chartRef.current.timeScale().setVisibleLogicalRange({ from: logicalFrom, to: logicalTo });
+      }
     } else if (candlestickSeriesRef.current) {
       candlestickSeriesRef.current.setData([]); // Clear data if `data` prop is empty
     }
