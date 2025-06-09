@@ -9,7 +9,8 @@ import {
   LineData,
   Time,
   HistogramSeries,
-  HistogramData
+  HistogramData,
+  LineStyle
 } from "lightweight-charts";
 
 // Helper function to calculate Exponential Moving Average (EMA)
@@ -84,6 +85,74 @@ const calculateRSI = (data: CandlestickData<Time>[], period: number = 14): LineD
   }
   return rsiData;
 };
+
+// Helper function to calculate Parabolic SAR (PSAR)
+const calculateParabolicSAR = (
+  data: CandlestickData<Time>[],
+  initialAf: number = 0.02,
+  incrementAf: number = 0.02,
+  maxAf: number = 0.20
+): LineData<Time>[] => {
+  const psarData: LineData<Time>[] = [];
+  if (data.length < 2) return psarData;
+
+  let isLong = data[1].close > data[0].close; // Initial trend guess
+  let af = initialAf;
+  let extremePoint = isLong ? Math.max(data[0].high, data[1].high) : Math.min(data[0].low, data[1].low);
+  let sar = isLong ? data[0].low : data[0].high;
+
+  // First point (or first calculable point)
+  // The first SAR point is typically the prior EP (high for short, low for long)
+  // For simplicity, we start calculating SAR from the second bar, using the first bar's data for initial EP/SAR.
+  // Some implementations might skip the first few bars or use different initialization.
+  psarData.push({ time: data[0].time, value: sar }); 
+
+  for (let i = 1; i < data.length; i++) {
+    const prevSar = sar;
+    const prevAf = af;
+    const prevExtremePoint = extremePoint;
+
+    if (isLong) {
+      sar = prevSar + prevAf * (prevExtremePoint - prevSar);
+      if (data[i].low < sar) { // Switch to short
+        isLong = false;
+        sar = prevExtremePoint; // SAR becomes the highest point of the previous uptrend
+        extremePoint = data[i].low;
+        af = initialAf;
+      } else {
+        if (data[i].high > prevExtremePoint) {
+          extremePoint = data[i].high;
+          af = Math.min(maxAf, prevAf + incrementAf);
+        }
+      }
+    } else { // isShort
+      sar = prevSar - prevAf * (prevSar - prevExtremePoint);
+      if (data[i].high > sar) { // Switch to long
+        isLong = true;
+        sar = prevExtremePoint; // SAR becomes the lowest point of the previous downtrend
+        extremePoint = data[i].high;
+        af = initialAf;
+      } else {
+        if (data[i].low < prevExtremePoint) {
+          extremePoint = data[i].low;
+          af = Math.min(maxAf, prevAf + incrementAf);
+        }
+      }
+    }
+    // Ensure SAR does not cross the previous or current period's high/low too aggressively
+    if (isLong) {
+        sar = Math.min(sar, data[i-1].low, (i > 1 ? data[i-2].low : data[i-1].low));
+        if (data[i].low < sar) sar = data[i].low; // Additional check if SAR is broken intraday
+    } else {
+        sar = Math.max(sar, data[i-1].high, (i > 1 ? data[i-2].high : data[i-1].high));
+        if (data[i].high > sar) sar = data[i].high; // Additional check
+    }
+
+    psarData.push({ time: data[i].time, value: sar });
+  }
+  return psarData;
+};
+
 
 // Helper function to calculate MACD
 interface MACDOutput {
@@ -164,6 +233,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
   const ema21SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ema50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ema200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const parabolicSARSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -263,6 +333,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     removeSeries(ema21SeriesRef);
     removeSeries(ema50SeriesRef);
     removeSeries(ema200SeriesRef);
+    removeSeries(parabolicSARSeriesRef);
 
     if (showIndicators) {
       // Calculate and add RSI
@@ -368,6 +439,20 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
           priceLineVisible: false,
         });
         ema200SeriesRef.current.setData(ema200Data);
+      }
+
+      // Calculate and add Parabolic SAR
+      const psarData = calculateParabolicSAR(data);
+      if (psarData.length > 0) {
+        parabolicSARSeriesRef.current = chart.addSeries(LineSeries, {
+          color: 'rgba(255, 165, 0, 0.8)', // Orange for PSAR
+          lineWidth: 2,
+          lineStyle: LineStyle.Dotted,
+          lastValueVisible: false,
+          priceLineVisible: false,
+          crosshairMarkerVisible: false, // Hide crosshair marker for PSAR dots
+        });
+        if (parabolicSARSeriesRef.current) parabolicSARSeriesRef.current.setData(psarData);
       }
 
       // chart.timeScale().fitContent(); // Ensure this is commented out or removed to maintain setVisibleLogicalRange
