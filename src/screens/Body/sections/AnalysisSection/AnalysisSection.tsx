@@ -155,8 +155,15 @@ export const AnalysisSection = (): JSX.Element => {
 
     setTimeout(() => {
       const randomSignal = Math.random() > 0.5 ? 'Buy' : 'Sell';
-      const randomStopLossPips = Math.floor(Math.random() * 25) + 5; // 5-29 pips
-      const randomTakeProfitPips = Math.floor(Math.random() * 50) + 10; // 10-59 pips
+      let randomStopLossPips = Math.floor(Math.random() * 25) + 5; // 5-29 pips
+      let randomTakeProfitPips = Math.floor(Math.random() * 50) + 10; // 10-59 pips
+
+      if (randomSignal === "Buy") {
+        randomStopLossPips *= -1;
+      }
+      if(randomSignal === "Sell") {
+        randomTakeProfitPips *= -1;
+      }
 
       setSignal(randomSignal);
       setStopLoss(`${randomStopLossPips} pips`);
