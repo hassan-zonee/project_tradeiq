@@ -12,19 +12,6 @@ import {
   HistogramData
 } from "lightweight-charts";
 
-// Helper function to calculate Simple Moving Average (SMA)
-const calculateSMA = (data: CandlestickData<Time>[], period: number): LineData<Time>[] => {
-  const smaData: LineData<Time>[] = [];
-  for (let i = period - 1; i < data.length; i++) {
-    let sum = 0;
-    for (let j = 0; j < period; j++) {
-      sum += data[i - j].close;
-    }
-    smaData.push({ time: data[i].time, value: sum / period });
-  }
-  return smaData;
-};
-
 // Helper function to calculate Exponential Moving Average (EMA)
 const calculateEMA = (data: CandlestickData<Time>[], period: number): LineData<Time>[] => {
   const emaData: LineData<Time>[] = [];
@@ -170,9 +157,6 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
-  const sma21SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
-  const sma50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
-  const sma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const rsiSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const macdLineSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const macdSignalSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
@@ -259,53 +243,12 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     };
 
     // Clear previous indicators before drawing new ones or if showIndicators is false
-    removeSeries(sma21SeriesRef);
-    removeSeries(sma50SeriesRef);
-    removeSeries(sma200SeriesRef);
     removeSeries(rsiSeriesRef);
     removeSeries(macdLineSeriesRef);
     removeSeries(macdSignalSeriesRef);
     removeSeries(macdHistogramSeriesRef);
 
     if (showIndicators) {
-      // Calculate and add SMAs
-      const sma21Data = calculateSMA(data, 21);
-      const sma50Data = calculateSMA(data, 50);
-      const sma200Data = calculateSMA(data, 200);
-
-      if (sma21Data.length > 0) {
-        sma21SeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(255, 165, 0, 0.8)', // Orange
-          lineWidth: 2,
-          lastValueVisible: false,
-          priceLineVisible: false,
-          priceScaleId: 'right', // Attach to main price scale
-        });
-        if (sma21SeriesRef.current) sma21SeriesRef.current.setData(sma21Data);
-      }
-
-      if (sma50Data.length > 0) {
-        sma50SeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(30, 144, 255, 0.8)', // DodgerBlue
-          lineWidth: 2,
-          lastValueVisible: false,
-          priceLineVisible: false,
-          priceScaleId: 'right',
-        });
-        if (sma50SeriesRef.current) sma50SeriesRef.current.setData(sma50Data);
-      }
-
-      if (sma200Data.length > 0) {
-        sma200SeriesRef.current = chart.addSeries(LineSeries, {
-            color: 'rgba(220, 20, 60, 0.8)', // Crimson (re-using old SMA50 color)
-            lineWidth: 2,
-            lastValueVisible: false,
-            priceLineVisible: false,
-            priceScaleId: 'right',
-        });
-        if (sma200SeriesRef.current) sma200SeriesRef.current.setData(sma200Data);
-      }
-
       // Calculate and add RSI
       const rsiData = calculateRSI(data, 14);
       if (rsiData.length > 0) {
