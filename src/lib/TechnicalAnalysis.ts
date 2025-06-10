@@ -230,17 +230,17 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
 
         // Support/Resistance check
         const recentLows = swingLows.slice(-3).map(l => l.low);
-        if (recentLows.some(low => Math.abs(lastCandle.low - low) / low < 0.001)) { // within 0.1%
-            confluences.push('Structure: Price is at a recent support level.');
+        if (recentLows.some(low => Math.abs(lastCandle.low - low) / low < 0.002)) { // within 0.2%
+            confluences.push('Structure: Price is near a recent support level.');
         }
 
         // Volume Spike
-        if (lastCandle.volume > lastCandle.avgVolume * 2) {
-            confluences.push('Volume: Significant volume spike detected.');
+        if (lastCandle.volume > lastCandle.avgVolume * 1.8) {
+            confluences.push('Volume: Increased volume detected.');
         }
         
         // Final Signal Decision
-        if (confluences.length >= 4) { // Require at least 4 confluences
+        if (confluences.length >= 2) { // Require at least 2 confluences
             signal = 'Buy';
             const recentSwingLow = swingLows.pop();
             if (recentSwingLow) {
@@ -271,17 +271,17 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
 
         // Support/Resistance check
         const recentHighs = swingHighs.slice(-3).map(h => h.high);
-        if (recentHighs.some(high => Math.abs(lastCandle.high - high) / high < 0.001)) {
-            confluences.push('Structure: Price is at a recent resistance level.');
+        if (recentHighs.some(high => Math.abs(lastCandle.high - high) / high < 0.002)) { // within 0.2%
+            confluences.push('Structure: Price is near a recent resistance level.');
         }
 
         // Volume Spike
-        if (lastCandle.volume > lastCandle.avgVolume * 2) {
-            confluences.push('Volume: Significant volume spike detected.');
+        if (lastCandle.volume > lastCandle.avgVolume * 1.8) {
+            confluences.push('Volume: Increased volume detected.');
         }
 
         // Final Signal Decision
-        if (confluences.length >= 4) {
+        if (confluences.length >= 2) { // Require at least 2 confluences
             signal = 'Sell';
             const recentSwingHigh = swingHighs.pop();
             if (recentSwingHigh) {
@@ -292,13 +292,23 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         }
     }
 
-    if (signal === 'None' || !stopLoss || !takeProfit) {
-        return { signal: 'None', strength: 0, confluences: ['No high-probability setup found.'] };
+    // If a signal was generated but we couldn't set SL/TP, invalidate it.
+    if (signal !== 'None' && (!stopLoss || !takeProfit)) {
+        signal = 'None';
+        confluences.push('Note: Signal invalidated, no clear stop-loss level found.');
+    }
+    
+    const strength = Math.round((confluences.filter(c => !c.startsWith('Note:')).length / 5) * 100);
+
+    if (signal === 'None') {
+        const finalConfluences = confluences.length > 0 ? confluences : ['No significant trading setup identified.'];
+        return { signal: 'None', strength, confluences: finalConfluences };
     }
 
+    // We have a valid signal with SL/TP
     return {
         signal,
-        strength: Math.round((confluences.length / 5) * 100), // 5 potential confluences
+        strength,
         stopLoss,
         takeProfit,
         confluences,
