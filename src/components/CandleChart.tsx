@@ -268,13 +268,19 @@ function calculateBollingerBands(
 
 export type IndicatorType = 'rsi' | 'macd' | 'ema21' | 'ema50' | 'ema200' | 'psar' | 'bollinger';
 
+interface KeyLevels {
+  support: number | null;
+  resistance: number | null;
+}
+
 interface CandleChartProps {
   data: CandlestickData<Time>[];
   showIndicators?: boolean;
   visibleIndicators?: IndicatorType[];
+  keyLevels?: KeyLevels;
 }
 
-export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators = false, visibleIndicators = [] }) => {
+export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators = false, visibleIndicators = [], keyLevels }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
@@ -289,6 +295,8 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
   const bbUpperRef = useRef<ISeriesApi<'Line'> | null>(null);
   const bbMiddleRef = useRef<ISeriesApi<'Line'> | null>(null);
   const bbLowerRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const supportLineRef = useRef<any | null>(null);
+  const resistanceLineRef = useRef<any | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -367,13 +375,46 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     }
 
     const chart = chartRef.current;
+    const series = candlestickSeriesRef.current;
+
+    // Clear and draw key level lines
+    if (supportLineRef.current) {
+      series.removePriceLine(supportLineRef.current);
+      supportLineRef.current = null;
+    }
+    if (resistanceLineRef.current) {
+      series.removePriceLine(resistanceLineRef.current);
+      resistanceLineRef.current = null;
+    }
+
+    if (keyLevels?.support) {
+      supportLineRef.current = series.createPriceLine({
+        price: keyLevels.support,
+        color: '#ef4444', // red-500
+        lineWidth: 3,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: 'Support',
+      });
+    }
+
+    if (keyLevels?.resistance) {
+      resistanceLineRef.current = series.createPriceLine({
+        price: keyLevels.resistance,
+        color: '#ef4444', // red-500
+        lineWidth: 3,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: 'Resistance',
+      });
+    }
 
     const removeSeries = (seriesRef: React.MutableRefObject<ISeriesApi<any> | null>) => {
       if (seriesRef.current) {
         try {
           chart.removeSeries(seriesRef.current);
         } catch (e) {
-          console.warn("Error removing series:", e, seriesRef.current);
+          console.warn("Failed to remove series:", e);
         }
         seriesRef.current = null;
       }
@@ -502,7 +543,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
         }
       }
     }
-  }, [data, showIndicators, visibleIndicators]); // Re-run when data or showIndicators changes
+  }, [data, showIndicators, visibleIndicators, keyLevels]); // Re-run when data or showIndicators changes
 
   // Cleanup chart instance on component unmount
   useEffect(() => {

@@ -35,7 +35,8 @@ export const AnalysisSection = (): JSX.Element => {
   const [signal, setSignal] = useState<'Buy' | 'Sell' | null>(null);
   const [stopLoss, setStopLoss] = useState<string | null>(null);
   const [takeProfit, setTakeProfit] = useState<string | null>(null);
-  const [signalStrength, setSignalStrength] = useState<number | null>(null);
+    const [signalStrength, setSignalStrength] = useState<number | null>(null);
+  const [keyLevels, setKeyLevels] = useState<{ support: number | null; resistance: number | null; }>({ support: null, resistance: null });
 
   // State for displaying real-time pair data
   const [currentPriceDisplay, setCurrentPriceDisplay] = useState<string>("-");
@@ -137,7 +138,7 @@ export const AnalysisSection = (): JSX.Element => {
 
     const intervalId = setInterval(() => {
       console.log(`Interval: Fetching chart data for ${selectedPair} ${selectedTimeframe} at ${new Date().toLocaleTimeString()}`);
-      fetchAndSetChartData(false); // Subsequent fetches are background updates
+      //fetchAndSetChartData(false); // Subsequent fetches are background updates
     }, 5000);
 
     return () => {
@@ -163,6 +164,7 @@ export const AnalysisSection = (): JSX.Element => {
     setSignalStrength(null);
     setStopLoss(null);
     setTakeProfit(null);
+    setKeyLevels({ support: null, resistance: null });
 
     // Initial delay to show loading and generate signal
     setTimeout(() => {
@@ -176,7 +178,16 @@ export const AnalysisSection = (): JSX.Element => {
       setSignal(randomSignal);
       setStopLoss(`${randomStopLossPips} pips`);
       setTakeProfit(`${randomTakeProfitPips} pips`);
-            setSignalStrength(Math.floor(Math.random() * (90 - 30 + 1)) + 30);
+                  setSignalStrength(Math.floor(Math.random() * (90 - 30 + 1)) + 30);
+
+      if (chartData.length > 0) {
+        const recentData = chartData.slice(-50);
+        if (recentData.length > 0) {
+          const highestHigh = Math.max(...recentData.map(c => c.high));
+          const lowestLow = Math.min(...recentData.map(c => c.low));
+          setKeyLevels({ support: lowestLow, resistance: highestHigh });
+        }
+      }
 
       setShowIndicators(true); // Enable indicator drawing on the chart
 
@@ -339,7 +350,7 @@ export const AnalysisSection = (): JSX.Element => {
                 ) : chartData.length === 0 ? (
                   <span className="text-gray-500">No data</span>
                 ) : (
-                  <CandleChart data={chartData} showIndicators={showIndicators} visibleIndicators={visibleIndicators} />
+                                    <CandleChart data={chartData} showIndicators={showIndicators} visibleIndicators={visibleIndicators} keyLevels={keyLevels} />
                 )}
               </div>
             </div>
