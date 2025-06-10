@@ -318,7 +318,6 @@ export const AnalysisSection = (): JSX.Element => {
                       <SelectItem value="30m">30m</SelectItem>
                       <SelectItem value="1h">1h</SelectItem>
                       <SelectItem value="4h">4h</SelectItem>
-                      <SelectItem value="1d">1d</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
