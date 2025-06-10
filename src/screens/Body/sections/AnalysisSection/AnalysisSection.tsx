@@ -441,21 +441,25 @@ export const AnalysisSection = (): JSX.Element => {
                   <p className="text-green-600 font-bold">{takeProfit || 'N/A'}</p>
                 )}
               </div>
+
+              {/* Analysis */}
+              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
+                <h4 className="font-semibold text-gray-800 text-lg mb-1">Analysis</h4>
+                {isAnalysisLoading ? (
+                  <div className="h-5 w-1/2 bg-gray-300 rounded animate-pulse mt-1"></div>
+                ) : (
+                  <div>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {confluences.map((reason, index) => (
+                        <li key={index} className="text-sm text-gray-400">
+                          {reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
-            {confluences.length > 0 && (
-              <Card className="mt-4">
-                <CardContent className="pt-4">
-                  <h3 className="text-lg font-semibold mb-2">Analysis</h3>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {confluences.map((reason, index) => (
-                      <li key={index} className="text-sm text-gray-400">
-                        {reason}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
           </CardContent>
         </Card>
       </div>

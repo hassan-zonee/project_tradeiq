@@ -303,7 +303,8 @@ export const analyzeConfluences = async (pair: string, timeframe: string): Promi
             signal = 'Buy';
             if (lastCandle.atr14) {
                 stopLoss = lastCandle.close - (lastCandle.atr14 * 1.5);
-                takeProfit = lastCandle.close + (lastCandle.atr14 * 1.5);
+                const rrRatio = Math.random() < 0.5 ? 1.5 : 2; // Randomly pick 1:1.5 or 1:2
+                takeProfit = lastCandle.close + (lastCandle.close - stopLoss) * rrRatio;
             }
         }
     }
@@ -342,7 +343,8 @@ export const analyzeConfluences = async (pair: string, timeframe: string): Promi
             signal = 'Sell';
             if (lastCandle.atr14) {
                 stopLoss = lastCandle.close + (lastCandle.atr14 * 1.5);
-                takeProfit = lastCandle.close - (lastCandle.atr14 * 1.5);
+                const rrRatio = Math.random() < 0.5 ? 1.5 : 2; // Randomly pick 1:1.5 or 1:2
+                takeProfit = lastCandle.close - (stopLoss - lastCandle.close) * rrRatio;
             }
         }
     }
