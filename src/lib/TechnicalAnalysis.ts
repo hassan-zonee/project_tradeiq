@@ -302,7 +302,7 @@ export const analyzeConfluences = async (pair: string, timeframe: string): Promi
         if (confluences.length >= 2) { // Require at least 2 confluences
             signal = 'Buy';
             if (lastCandle.atr14) {
-                stopLoss = lastCandle.close - (lastCandle.atr14 * 1.5);
+                stopLoss = lastCandle.close - (lastCandle.atr14 * 1.01);
                 const rrRatio = Math.random() < 0.5 ? 1.5 : 2; // Randomly pick 1:1.5 or 1:2
                 takeProfit = lastCandle.close + (lastCandle.close - stopLoss) * rrRatio;
             }
@@ -342,7 +342,7 @@ export const analyzeConfluences = async (pair: string, timeframe: string): Promi
         if (confluences.length >= 2) { // Require at least 2 confluences
             signal = 'Sell';
             if (lastCandle.atr14) {
-                stopLoss = lastCandle.close + (lastCandle.atr14 * 1.5);
+                stopLoss = lastCandle.close + (lastCandle.atr14 * 1.01);
                 const rrRatio = Math.random() < 0.5 ? 1.5 : 2; // Randomly pick 1:1.5 or 1:2
                 takeProfit = lastCandle.close - (stopLoss - lastCandle.close) * rrRatio;
             }
