@@ -37,6 +37,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [stopLoss, setStopLoss] = useState<string | null>(null);
   const [takeProfit, setTakeProfit] = useState<string | null>(null);
     const [signalStrength, setSignalStrength] = useState<number | null>(null);
+  const [confluences, setConfluences] = useState<string[]>([]);
   const [keyLevels, setKeyLevels] = useState<{ support: number | null; resistance: number | null; }>({ support: null, resistance: null });
 
   // State for displaying real-time pair data
@@ -188,9 +189,10 @@ export const AnalysisSection = (): JSX.Element => {
       const analysis = await analyzeConfluences(selectedPair);
 
       setSignal(analysis.signal);
-      setStopLoss(`${analysis.stopLoss} pips`);
-      setTakeProfit(`${analysis.takeProfit} pips`);
+      setStopLoss(analysis.stopLoss ? `${analysis.stopLoss.toFixed(5)}` : null);
+      setTakeProfit(analysis.takeProfit ? `${analysis.takeProfit.toFixed(5)}` : null);
       setSignalStrength(analysis.strength);
+      setConfluences(analysis.confluences);
       setKeyLevels({ support, resistance });
 
       setShowIndicators(true); // Enable indicator drawing on the chart
@@ -346,7 +348,7 @@ export const AnalysisSection = (): JSX.Element => {
                   <span className="text-sm text-gray-500">Please wait a moment.</span>
                 </div>
               )}
-              <div className="rounded-2xl overflow-hidden h-[350px] mb-2 h-g flex items-center justify-center">
+              <div className="rounded-2xl overflow-hidden h-[400px] mb-2 h-g flex items-center justify-center">
                 {chartLoading ? (
                   <span className="text-gray-500">Loading chart data...</span>
                 ) : chartError ? (
@@ -434,6 +436,20 @@ export const AnalysisSection = (): JSX.Element => {
                 )}
               </div>
             </div>
+            {confluences.length > 0 && (
+              <Card className="mt-4">
+                <CardContent className="pt-4">
+                  <h3 className="text-lg font-semibold mb-2">Analysis</h3>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {confluences.map((reason, index) => (
+                      <li key={index} className="text-sm text-gray-400">
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
           </CardContent>
         </Card>
       </div>
