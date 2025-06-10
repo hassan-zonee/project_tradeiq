@@ -303,6 +303,8 @@ export const AnalysisSection = (): JSX.Element => {
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="5m">5m</SelectItem>
+                      <SelectItem value="15m">15m</SelectItem>
                       <SelectItem value="30m">30m</SelectItem>
                       <SelectItem value="1h">1h</SelectItem>
                       <SelectItem value="4h">4h</SelectItem>
