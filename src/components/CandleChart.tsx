@@ -391,8 +391,6 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
         color: '#ef4444', // red-500
         lineWidth: 3,
         lineStyle: LineStyle.Dashed,
-        axisLabelVisible: true,
-        title: 'Support',
       });
     }
 
@@ -402,8 +400,6 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
         color: '#ef4444', // red-500
         lineWidth: 3,
         lineStyle: LineStyle.Dashed,
-        axisLabelVisible: true,
-        title: 'Resistance',
       });
     }
 
