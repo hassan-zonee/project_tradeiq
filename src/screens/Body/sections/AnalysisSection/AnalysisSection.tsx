@@ -172,7 +172,7 @@ export const AnalysisSection = (): JSX.Element => {
       setShowIndicators(true);
       setIsAnalysisLoading(false);
       console.log("Analysis complete, indicators shown.");
-    }, 5000); // 5 seconds delay
+    }, 10000);
   };
 
   useEffect(() => {
@@ -302,7 +302,7 @@ export const AnalysisSection = (): JSX.Element => {
             <div className="relative">
               {isAnalysisLoading && (
                 <div 
-                  className="absolute inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-10 rounded-2xl"
+                  className="absolute inset-0 bg-white bg-opacity-20 flex flex-col items-center justify-center z-10 rounded-2xl"
                   style={{ backdropFilter: 'blur(4px)' }}
                 >
                   <svg className="animate-spin h-10 w-10 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

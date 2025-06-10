@@ -330,7 +330,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
       // Set a default visible range to show the last 70 candles with padding
       const dataLength = data.length;
       if (dataLength > 0) {
-        const PADDING_BARS = 30 // Match this with timeScale.rightOffset if desired
+        const PADDING_BARS = 0 // Match this with timeScale.rightOffset if desired
         const logicalFrom = Math.max(0, dataLength - 50); // Show latest 70 data points
         const logicalTo = (dataLength - 1) + PADDING_BARS; // Extend range by PADDING_BARS beyond the last data point
         chartRef.current.timeScale().setVisibleLogicalRange({ from: logicalFrom, to: logicalTo });
