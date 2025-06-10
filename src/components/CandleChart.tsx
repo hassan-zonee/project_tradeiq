@@ -10,9 +10,7 @@ import {
   Time,
   HistogramSeries,
   HistogramData,
-  LineStyle,
-  LineSeriesPartialOptions
-} from "lightweight-charts";
+  LineStyle} from "lightweight-charts";
 
 // Helper function to calculate Exponential Moving Average (EMA)
 const calculateEMA = (data: CandlestickData<Time>[], period: number): LineData<Time>[] => {

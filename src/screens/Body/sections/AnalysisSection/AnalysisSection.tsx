@@ -167,7 +167,23 @@ export const AnalysisSection = (): JSX.Element => {
     setKeyLevels({ support: null, resistance: null });
 
     // Initial delay to show loading and generate signal
-    setTimeout(() => {
+    setTimeout(async () => {
+      let support: number | null = null;
+      let resistance: number | null = null;
+      try {
+        const { getChartData } = await import("../../../../lib/chartsData");
+        const oneHourData = await getChartData(selectedPair, '1h');
+        if (oneHourData && oneHourData.length > 0) {
+          const recentData = oneHourData.slice(-50);
+          if (recentData.length > 0) {
+            resistance = Math.max(...recentData.map(c => c.high));
+            support = Math.min(...recentData.map(c => c.low));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch 1h data for S/R analysis:", error);
+      }
+
       const randomSignal = Math.random() > 0.5 ? 'Buy' : 'Sell';
       let randomStopLossPips = Math.floor(Math.random() * 25) + 5;
       let randomTakeProfitPips = Math.floor(Math.random() * 50) + 10;
@@ -178,16 +194,8 @@ export const AnalysisSection = (): JSX.Element => {
       setSignal(randomSignal);
       setStopLoss(`${randomStopLossPips} pips`);
       setTakeProfit(`${randomTakeProfitPips} pips`);
-                  setSignalStrength(Math.floor(Math.random() * (90 - 30 + 1)) + 30);
-
-      if (chartData.length > 0) {
-        const recentData = chartData.slice(-50);
-        if (recentData.length > 0) {
-          const highestHigh = Math.max(...recentData.map(c => c.high));
-          const lowestLow = Math.min(...recentData.map(c => c.low));
-          setKeyLevels({ support: lowestLow, resistance: highestHigh });
-        }
-      }
+      setSignalStrength(Math.floor(Math.random() * (90 - 30 + 1)) + 30);
+      setKeyLevels({ support, resistance });
 
       setShowIndicators(true); // Enable indicator drawing on the chart
 
