@@ -35,6 +35,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [signal, setSignal] = useState<'Buy' | 'Sell' | null>(null);
   const [stopLoss, setStopLoss] = useState<string | null>(null);
   const [takeProfit, setTakeProfit] = useState<string | null>(null);
+  const [signalStrength, setSignalStrength] = useState<number | null>(null);
 
   // State for displaying real-time pair data
   const [currentPriceDisplay, setCurrentPriceDisplay] = useState<string>("-");
@@ -147,11 +148,19 @@ export const AnalysisSection = (): JSX.Element => {
 
   const allIndicators: IndicatorType[] = ['rsi', 'macd', 'bollinger', 'psar', 'ema21', 'ema50', 'ema200'];
 
+  const getStrengthColor = (strength: number): string => {
+    if (strength < 40) return 'bg-red-500';
+    if (strength < 50) return 'bg-yellow-400';
+    if (strength < 75) return 'bg-green-400';
+    return 'bg-green-600';
+  };
+
   const handleAnalyzeClick = () => {
     setIsAnalysisLoading(true);
     setShowIndicators(false);
     setVisibleIndicators([]);
     setSignal(null);
+    setSignalStrength(null);
     setStopLoss(null);
     setTakeProfit(null);
 
@@ -167,6 +176,7 @@ export const AnalysisSection = (): JSX.Element => {
       setSignal(randomSignal);
       setStopLoss(`${randomStopLossPips} pips`);
       setTakeProfit(`${randomTakeProfitPips} pips`);
+            setSignalStrength(Math.floor(Math.random() * (90 - 30 + 1)) + 30);
 
       setShowIndicators(true); // Enable indicator drawing on the chart
 
@@ -364,12 +374,28 @@ export const AnalysisSection = (): JSX.Element => {
               {/* Signal */}
               <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-800 text-lg mb-1">Signal</h4>
-                {isAnalysisLoading ? (
+                                {isAnalysisLoading ? (
                   <div className="h-5 w-3/4 bg-gray-300 rounded animate-pulse mt-1"></div>
                 ) : (
-                  <p className={`font-semibold text-lg ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}`}>
-                    {signal || 'N/A'}
-                  </p>
+                  <>
+                    <p className={`font-semibold text-lg ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}`}>
+                      {signal || 'N/A'}
+                    </p>
+                    {signal && signalStrength !== null && (
+                      <div className="mt-4">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm font-medium text-gray-500">Signal Strength</span>
+                          <span className="text-sm font-bold text-gray-800">{signalStrength}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full ${getStrengthColor(signalStrength)}`}
+                            style={{ width: `${signalStrength}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
