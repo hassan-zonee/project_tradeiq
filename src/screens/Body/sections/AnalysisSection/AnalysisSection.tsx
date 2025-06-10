@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 import { Separator } from "../../../../components/ui/separator";
-import { CandleChart } from "../../../../components/CandleChart";
+import { CandleChart, type IndicatorType } from "../../../../components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 
 
@@ -30,6 +30,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [chartLoading, setChartLoading] = useState<boolean>(false);
   const [chartError, setChartError] = useState<string | null>(null);
   const [showIndicators, setShowIndicators] = useState(false);
+  const [visibleIndicators, setVisibleIndicators] = useState<IndicatorType[]>([]);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
   const [signal, setSignal] = useState<'Buy' | 'Sell' | null>(null);
   const [stopLoss, setStopLoss] = useState<string | null>(null);
@@ -144,35 +145,42 @@ export const AnalysisSection = (): JSX.Element => {
     };
   }, [selectedPair, selectedTimeframe]);
 
+  const allIndicators: IndicatorType[] = ['rsi', 'macd', 'bollinger', 'psar', 'ema21', 'ema50', 'ema200'];
+
   const handleAnalyzeClick = () => {
     setIsAnalysisLoading(true);
-    setShowIndicators(false); // Hide indicators immediately
-    setSignal(null); // Reset previous analysis data
+    setShowIndicators(false);
+    setVisibleIndicators([]);
+    setSignal(null);
     setStopLoss(null);
     setTakeProfit(null);
 
-    console.log("Analysis started, loading overlay shown...");
-
+    // Initial delay to show loading and generate signal
     setTimeout(() => {
       const randomSignal = Math.random() > 0.5 ? 'Buy' : 'Sell';
-      let randomStopLossPips = Math.floor(Math.random() * 25) + 5; // 5-29 pips
-      let randomTakeProfitPips = Math.floor(Math.random() * 50) + 10; // 10-59 pips
+      let randomStopLossPips = Math.floor(Math.random() * 25) + 5;
+      let randomTakeProfitPips = Math.floor(Math.random() * 50) + 10;
 
-      if (randomSignal === "Buy") {
-        randomStopLossPips *= -1;
-      }
-      if(randomSignal === "Sell") {
-        randomTakeProfitPips *= -1;
-      }
+      if (randomSignal === "Buy") randomStopLossPips *= -1;
+      if (randomSignal === "Sell") randomTakeProfitPips *= -1;
 
       setSignal(randomSignal);
       setStopLoss(`${randomStopLossPips} pips`);
       setTakeProfit(`${randomTakeProfitPips} pips`);
-      
-      setShowIndicators(true);
-      setIsAnalysisLoading(false);
-      console.log("Analysis complete, indicators shown.");
-    }, 10000);
+
+      setShowIndicators(true); // Enable indicator drawing on the chart
+
+      // Sequentially add indicators to the visible list
+      allIndicators.forEach((indicator, index) => {
+        setTimeout(() => {
+          setVisibleIndicators(prev => [...prev, indicator]);
+          // Turn off loading spinner after the last indicator is revealed
+          if (index === allIndicators.length - 1) {
+            setIsAnalysisLoading(false);
+          }
+        }, (index + 1) * 1000); // Stagger each indicator by 1 second
+      });
+    }, 1000); // 1-second delay before analysis results appear
   };
 
   useEffect(() => {
@@ -303,7 +311,7 @@ export const AnalysisSection = (): JSX.Element => {
               {isAnalysisLoading && (
                 <div 
                   className="absolute inset-0 bg-white bg-opacity-20 flex flex-col items-center justify-center z-10 rounded-2xl"
-                  style={{ backdropFilter: 'blur(4px)' }}
+                  style={{ backdropFilter: 'blur(2px)' }}
                 >
                   <svg className="animate-spin h-10 w-10 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -321,7 +329,7 @@ export const AnalysisSection = (): JSX.Element => {
                 ) : chartData.length === 0 ? (
                   <span className="text-gray-500">No data</span>
                 ) : (
-                  <CandleChart data={chartData} showIndicators={showIndicators} />
+                  <CandleChart data={chartData} showIndicators={showIndicators} visibleIndicators={visibleIndicators} />
                 )}
               </div>
             </div>

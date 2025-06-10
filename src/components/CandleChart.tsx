@@ -266,12 +266,15 @@ function calculateBollingerBands(
   return { upper: upperData, middle: middleData, lower: lowerData };
 }
 
+export type IndicatorType = 'rsi' | 'macd' | 'ema21' | 'ema50' | 'ema200' | 'psar' | 'bollinger';
+
 interface CandleChartProps {
   data: CandlestickData<Time>[];
   showIndicators?: boolean;
+  visibleIndicators?: IndicatorType[];
 }
 
-export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators = false }) => {
+export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators = false, visibleIndicators = [] }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
@@ -359,13 +362,12 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
 
   // Effect for handling indicators
   useEffect(() => {
-    if (!chartRef.current || !candlestickSeriesRef.current || !data || data.length < 20) { // Need enough data for indicators
+    if (!chartRef.current || !candlestickSeriesRef.current || !data || data.length < 20) {
       return;
     }
 
     const chart = chartRef.current;
 
-    // Helper to remove a series and its ref
     const removeSeries = (seriesRef: React.MutableRefObject<ISeriesApi<any> | null>) => {
       if (seriesRef.current) {
         try {
@@ -377,7 +379,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
       }
     };
 
-    // Clear previous indicators before drawing new ones or if showIndicators is false
+    // Clear all indicators before redrawing
     removeSeries(rsiSeriesRef);
     removeSeries(macdLineSeriesRef);
     removeSeries(macdSignalSeriesRef);
@@ -391,166 +393,116 @@ export const CandleChart: React.FC<CandleChartProps> = ({ data, showIndicators =
     removeSeries(bbLowerRef);
 
     if (showIndicators) {
-      // Calculate and add RSI
-      const rsiData = calculateRSI(data, 14);
-      if (rsiData.length > 0) {
-        // Attempt to place RSI on a new pane. 
-        // This usually requires priceScaleId to be different from the main one ('right').
-        // An empty string '' often works, or a unique ID.
-        // The chart might need layout options for a second price scale if this doesn't auto-create a pane.
-        rsiSeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(128, 0, 128, 0.8)', // Purple
-          lineWidth: 2,
-          priceScaleId: '', // Try to force to a new pane/scale
-          // Forcing y-axis for RSI from 0 to 100
-          autoscaleInfoProvider: () => ({
-            priceRange: {
-              minValue: 0,
-              maxValue: 100,
-            },
-          }),
-          lastValueVisible: true,
-          priceLineVisible: true,
-        });
-        if (rsiSeriesRef.current) rsiSeriesRef.current.setData(rsiData);
-        // Ensure the RSI pane's price scale is configured if needed
-        // chart.priceScale('').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } }); // Example for RSI pane margins
-      }
-      // Calculate and add MACD
-      const { macdLine, signalLine, histogram: macdHistogram } = calculateMACD(data);
-      const macdPaneId = 'macdPane'; // Unique ID for MACD pane's price scale
-
-      if (macdLine.length > 0) {
-        macdLineSeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(0, 120, 255, 0.8)', // Blue for MACD line
-          lineWidth: 2,
-          priceScaleId: macdPaneId,
-          lastValueVisible: false,
-          priceLineVisible: false,
-        });
-        macdLineSeriesRef.current.setData(macdLine);
+      if (visibleIndicators.includes('rsi')) {
+        const rsiData = calculateRSI(data, 14);
+        if (rsiData.length > 0) {
+          rsiSeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(128, 0, 128, 0.8)',
+            lineWidth: 2,
+            priceScaleId: '', // New pane
+            autoscaleInfoProvider: () => ({ priceRange: { minValue: 0, maxValue: 100 } }),
+            lastValueVisible: true,
+            priceLineVisible: true,
+          });
+          rsiSeriesRef.current.setData(rsiData);
+          chart.priceScale('').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+        }
       }
 
-      if (signalLine.length > 0) {
-        macdSignalSeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(255, 100, 0, 0.8)', // Orange for Signal line
-          lineWidth: 2,
-          priceScaleId: macdPaneId,
-          lastValueVisible: false,
-          priceLineVisible: false,
-        });
-        macdSignalSeriesRef.current.setData(signalLine);
+      if (visibleIndicators.includes('macd')) {
+        const { macdLine, signalLine, histogram } = calculateMACD(data);
+        const macdPaneId = 'macdPane';
+        if (macdLine.length > 0) {
+          macdLineSeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(0, 120, 255, 0.8)',
+            lineWidth: 2,
+            priceScaleId: macdPaneId,
+          });
+          macdLineSeriesRef.current.setData(macdLine);
+        }
+        if (signalLine.length > 0) {
+          macdSignalSeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(255, 100, 0, 0.8)',
+            lineWidth: 2,
+            priceScaleId: macdPaneId,
+          });
+          macdSignalSeriesRef.current.setData(signalLine);
+        }
+        if (histogram.length > 0) {
+          macdHistogramSeriesRef.current = chart.addSeries(HistogramSeries, {
+            priceScaleId: macdPaneId,
+          });
+          macdHistogramSeriesRef.current.setData(histogram);
+        }
+        if (macdLine.length > 0 || signalLine.length > 0 || histogram.length > 0) {
+          chart.priceScale(macdPaneId).applyOptions({ scaleMargins: { top: 0.7, bottom: 0 } });
+        }
       }
 
-      if (macdHistogram.length > 0) {
-        macdHistogramSeriesRef.current = chart.addSeries(HistogramSeries, {
-          priceScaleId: macdPaneId,
-          // Colors are set in the data points for positive/negative values
-          lastValueVisible: false,
-        });
-        macdHistogramSeriesRef.current.setData(macdHistogram);
-      }
-      
-      // Configure the MACD pane's price scale if series were added
-      if (macdLine.length > 0 || signalLine.length > 0 || macdHistogram.length > 0) {
-        chart.priceScale(macdPaneId).applyOptions({
-            scaleMargins: { top: 0.7, bottom: 0 }, // Adjust margins for MACD pane
-            // You might want to adjust other options like `entireTextOnly` or `drawTicks`
-        });
+      if (visibleIndicators.includes('ema21')) {
+        const emaData = calculateEMA(data, 21);
+        if (emaData.length > 0) {
+          ema21SeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(255, 215, 0, 0.8)',
+            lineWidth: 1,
+          });
+          ema21SeriesRef.current.setData(emaData);
+        }
       }
 
-      // Calculate and add EMAs
-      const ema21Data = calculateEMA(data, 21);
-      if (ema21Data.length > 0) {
-        ema21SeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(255, 215, 0, 0.8)', // Gold for EMA 21
-          lineWidth: 1,
-          priceScaleId: 'right', // Main price scale
-          lastValueVisible: false,
-          priceLineVisible: false,
-        });
-        ema21SeriesRef.current.setData(ema21Data);
+      if (visibleIndicators.includes('ema50')) {
+        const emaData = calculateEMA(data, 50);
+        if (emaData.length > 0) {
+          ema50SeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(30, 144, 255, 0.8)',
+            lineWidth: 1,
+          });
+          ema50SeriesRef.current.setData(emaData);
+        }
       }
 
-      const ema50Data = calculateEMA(data, 50);
-      if (ema50Data.length > 0) {
-        ema50SeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(30, 144, 255, 0.8)', // Dodger Blue for EMA 50
-          lineWidth: 1,
-          priceScaleId: 'right', // Main price scale
-          lastValueVisible: false,
-          priceLineVisible: false,
-        });
-        ema50SeriesRef.current.setData(ema50Data);
+      if (visibleIndicators.includes('ema200')) {
+        const emaData = calculateEMA(data, 200);
+        if (emaData.length > 0) {
+          ema200SeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(138, 43, 226, 0.8)',
+            lineWidth: 2,
+          });
+          ema200SeriesRef.current.setData(emaData);
+        }
       }
 
-      const ema200Data = calculateEMA(data, 200);
-      if (ema200Data.length > 0) {
-        ema200SeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(138, 43, 226, 0.8)', // BlueViolet for EMA 200
-          lineWidth: 2, // Thicker for the longest EMA
-          priceScaleId: 'right', // Main price scale
-          lastValueVisible: false,
-          priceLineVisible: false,
-        });
-        ema200SeriesRef.current.setData(ema200Data);
+      if (visibleIndicators.includes('psar')) {
+        const psarData = calculateParabolicSAR(data);
+        if (psarData.length > 0) {
+          parabolicSARSeriesRef.current = chart.addSeries(LineSeries, {
+            color: 'rgba(255, 165, 0, 0.8)',
+            lineWidth: 2,
+            lineStyle: LineStyle.Dotted,
+            crosshairMarkerVisible: false,
+          });
+          parabolicSARSeriesRef.current.setData(psarData);
+        }
       }
 
-      // Calculate and add Parabolic SAR
-      const psarData = calculateParabolicSAR(data);
-      if (psarData.length > 0) {
-        parabolicSARSeriesRef.current = chart.addSeries(LineSeries, {
-          color: 'rgba(255, 165, 0, 0.8)', // Orange for PSAR
-          lineWidth: 2,
-          lineStyle: LineStyle.Dotted,
-          lastValueVisible: false,
-          priceLineVisible: false,
-          crosshairMarkerVisible: false, // Hide crosshair marker for PSAR dots
-        });
-        if (parabolicSARSeriesRef.current) parabolicSARSeriesRef.current.setData(psarData);
+      if (visibleIndicators.includes('bollinger')) {
+        const { upper, middle, lower } = calculateBollingerBands(data);
+                const commonBBLineOptions = { lineWidth: 1, lastValueVisible: false, priceLineVisible: false } as const;
+        if (upper.length > 0) {
+          bbUpperRef.current = chart.addSeries(LineSeries, { ...commonBBLineOptions, color: 'rgba(33, 150, 243, 0.5)' });
+          bbUpperRef.current.setData(upper);
+        }
+        if (middle.length > 0) {
+          bbMiddleRef.current = chart.addSeries(LineSeries, { ...commonBBLineOptions, color: 'rgba(255, 152, 0, 0.7)', lineStyle: LineStyle.Dotted });
+          bbMiddleRef.current.setData(middle);
+        }
+        if (lower.length > 0) {
+          bbLowerRef.current = chart.addSeries(LineSeries, { ...commonBBLineOptions, color: 'rgba(33, 150, 243, 0.5)' });
+          bbLowerRef.current.setData(lower);
+        }
       }
-
-
-      // Calculate and add Bollinger Bands
-      const { upper: bbUpperData, middle: bbMiddleData, lower: bbLowerData } = calculateBollingerBands(data);
-
-      const commonBBLineOptions: Omit<LineSeriesPartialOptions, 'color' | 'lineStyle'> = {
-        lineWidth: 1,
-        lastValueVisible: false,
-        priceLineVisible: false,
-        priceScaleId: 'right', // Ensure it's on the main price scale
-      };
-
-      if (bbUpperData.length > 0 && chart) {
-        bbUpperRef.current = chart.addSeries(LineSeries, {
-          ...commonBBLineOptions,
-          color: 'rgba(33, 150, 243, 0.5)', // Light Blue, slightly transparent
-          lineStyle: LineStyle.Solid,
-        });
-        if (bbUpperRef.current) bbUpperRef.current.setData(bbUpperData);
-      }
-
-      if (bbMiddleData.length > 0 && chart) {
-        bbMiddleRef.current = chart.addSeries(LineSeries, {
-          ...commonBBLineOptions,
-          color: 'rgba(255, 152, 0, 0.7)', // Orange for SMA basis
-          lineStyle: LineStyle.Dotted,
-        });
-        if (bbMiddleRef.current) bbMiddleRef.current.setData(bbMiddleData);
-      }
-
-      if (bbLowerData.length > 0 && chart) {
-        bbLowerRef.current = chart.addSeries(LineSeries, {
-          ...commonBBLineOptions,
-          color: 'rgba(33, 150, 243, 0.5)', // Light Blue, slightly transparent
-          lineStyle: LineStyle.Solid,
-        });
-        if (bbLowerRef.current) bbLowerRef.current.setData(bbLowerData);
-      }
-      // chart.timeScale().fitContent(); // Ensure this is commented out or removed to maintain setVisibleLogicalRange
-    } // End of if(showIndicators)
-
-  }, [data, showIndicators]); // Re-run when data or showIndicators changes
+    }
+  }, [data, showIndicators, visibleIndicators]); // Re-run when data or showIndicators changes
 
   // Cleanup chart instance on component unmount
   useEffect(() => {
