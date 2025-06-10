@@ -138,8 +138,8 @@ export const AnalysisSection = (): JSX.Element => {
 
     const intervalId = setInterval(() => {
       console.log(`Interval: Fetching chart data for ${selectedPair} ${selectedTimeframe} at ${new Date().toLocaleTimeString()}`);
-      //fetchAndSetChartData(false); // Subsequent fetches are background updates
-    }, 5000);
+      fetchAndSetChartData(false); // Subsequent fetches are background updates
+    }, 10000);
 
     return () => {
       clearInterval(intervalId); // Cleanup interval on component unmount or when dependencies change
