@@ -15,7 +15,7 @@ import { CandleChart, type IndicatorType } from "../../../../components/CandleCh
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 import { analyzeConfluences, getHigherTimeframe, type TradingSignal } from "../../../../lib/TechnicalAnalysis";
 
-const ANALYSIS_MIN_LOADING_TIME_MS = 0;
+const ANALYSIS_MIN_LOADING_TIME_MS = 5000;
 
 
 
@@ -351,7 +351,7 @@ export const AnalysisSection = (): JSX.Element => {
               {isAnalysisLoading && (
                 <div 
                   className="absolute inset-0 bg-white bg-opacity-20 flex flex-col items-center justify-center z-10 rounded-2xl"
-                  style={{ backdropFilter: 'blur(2px)' }}
+                  style={{ backdropFilter: 'blur(3px)' }}
                 >
                   <svg className="animate-spin h-10 w-10 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
