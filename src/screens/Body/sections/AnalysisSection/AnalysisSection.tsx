@@ -400,7 +400,7 @@ export const AnalysisSection = (): JSX.Element => {
                      <p className={`font-semibold text-lg ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}`}>
                        {signal}
                        {entryPrice && (
-                         <span className="text-sm text-gray-500 ml-2">(@ {entryPrice.toFixed(5)})</span>
+                         <span className="text-xs ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}` ml-2">({entryPrice.toFixed(5)})</span>
                        )}
                      </p>
                     {signal && signalStrength !== null && (
