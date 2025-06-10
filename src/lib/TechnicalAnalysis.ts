@@ -17,6 +17,7 @@ export interface TradingSignal {
     strength: number; // Number of confluences met (out of 6)
     stopLoss?: number;
     takeProfit?: number;
+    entryPrice?: number;
     confluences: string[];
 }
 
@@ -311,6 +312,7 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         strength,
         stopLoss,
         takeProfit,
+        entryPrice: lastCandle.close,
         confluences,
     };
 };

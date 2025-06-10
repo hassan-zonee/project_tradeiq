@@ -36,6 +36,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [signal, setSignal] = useState<'Buy' | 'Sell' | 'None'>("None");
   const [stopLoss, setStopLoss] = useState<string | null>(null);
   const [takeProfit, setTakeProfit] = useState<string | null>(null);
+  const [entryPrice, setEntryPrice] = useState<number | null>(null);
     const [signalStrength, setSignalStrength] = useState<number | null>(null);
   const [confluences, setConfluences] = useState<string[]>([]);
   const [keyLevels, setKeyLevels] = useState<{ support: number | null; resistance: number | null; }>({ support: null, resistance: null });
@@ -192,6 +193,7 @@ export const AnalysisSection = (): JSX.Element => {
       setStopLoss(analysis.stopLoss ? `${analysis.stopLoss.toFixed(5)}` : null);
       setTakeProfit(analysis.takeProfit ? `${analysis.takeProfit.toFixed(5)}` : null);
       setSignalStrength(analysis.strength);
+      setEntryPrice(analysis.entryPrice || null);
       setConfluences(analysis.confluences);
       setKeyLevels({ support, resistance });
 
@@ -393,11 +395,14 @@ export const AnalysisSection = (): JSX.Element => {
                 <h4 className="font-semibold text-gray-800 text-lg mb-1">Signal</h4>
                                 {isAnalysisLoading ? (
                   <div className="h-5 w-3/4 bg-gray-300 rounded animate-pulse mt-1"></div>
-                ) : (
-                  <>
-                    <p className={`font-semibold text-lg ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}`}>
-                      {signal || 'N/A'}
-                    </p>
+                 ) : (
+                   <>
+                     <p className={`font-semibold text-lg ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}`}>
+                       {signal}
+                       {entryPrice && (
+                         <span className="text-sm text-gray-500 ml-2">(@ {entryPrice.toFixed(5)})</span>
+                       )}
+                     </p>
                     {signal && signalStrength !== null && (
                       <div className="mt-4">
                         <div className="flex justify-between items-center mb-1">
