@@ -13,6 +13,7 @@ import {
 import { Separator } from "../../../../components/ui/separator";
 import { CandleChart, type IndicatorType } from "../../../../components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
+import { analyzeConfluences } from "../../../../lib/TechnicalAnalysis";
 
 
 
@@ -32,7 +33,7 @@ export const AnalysisSection = (): JSX.Element => {
   const [showIndicators, setShowIndicators] = useState(false);
   const [visibleIndicators, setVisibleIndicators] = useState<IndicatorType[]>([]);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
-  const [signal, setSignal] = useState<'Buy' | 'Sell' | null>(null);
+  const [signal, setSignal] = useState<'Buy' | 'Sell' | 'None'>("None");
   const [stopLoss, setStopLoss] = useState<string | null>(null);
   const [takeProfit, setTakeProfit] = useState<string | null>(null);
     const [signalStrength, setSignalStrength] = useState<number | null>(null);
@@ -160,7 +161,7 @@ export const AnalysisSection = (): JSX.Element => {
     setIsAnalysisLoading(true);
     setShowIndicators(false);
     setVisibleIndicators([]);
-    setSignal(null);
+    setSignal("None");
     setSignalStrength(null);
     setStopLoss(null);
     setTakeProfit(null);
@@ -184,17 +185,12 @@ export const AnalysisSection = (): JSX.Element => {
         console.error("Failed to fetch 1h data for S/R analysis:", error);
       }
 
-      const randomSignal = Math.random() > 0.5 ? 'Buy' : 'Sell';
-      let randomStopLossPips = Math.floor(Math.random() * 25) + 5;
-      let randomTakeProfitPips = Math.floor(Math.random() * 50) + 10;
+      const analysis = await analyzeConfluences(selectedPair);
 
-      if (randomSignal === "Buy") randomStopLossPips *= -1;
-      if (randomSignal === "Sell") randomTakeProfitPips *= -1;
-
-      setSignal(randomSignal);
-      setStopLoss(`${randomStopLossPips} pips`);
-      setTakeProfit(`${randomTakeProfitPips} pips`);
-      setSignalStrength(Math.floor(Math.random() * (90 - 30 + 1)) + 30);
+      setSignal(analysis.signal);
+      setStopLoss(`${analysis.stopLoss} pips`);
+      setTakeProfit(`${analysis.takeProfit} pips`);
+      setSignalStrength(analysis.strength);
       setKeyLevels({ support, resistance });
 
       setShowIndicators(true); // Enable indicator drawing on the chart

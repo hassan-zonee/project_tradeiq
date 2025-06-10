@@ -13,7 +13,7 @@ export interface EnhancedCandle extends CandlestickData<UTCTimestamp> {
 }
 
 export interface TradingSignal {
-    signal: 'buy' | 'sell' | 'hold';
+    signal: 'Buy' | 'Sell' | 'None';
     strength: number; // Number of confluences met (out of 6)
     stopLoss?: number;
     takeProfit?: number;
@@ -176,7 +176,7 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
     ]);
 
     if (!d1h || d1h.length < 200 || !d5m || d5m.length < 200) {
-        return { signal: 'hold', strength: 0, confluences: ['Insufficient data for analysis.'] };
+        return { signal: 'None', strength: 0, confluences: ['Insufficient data for analysis.'] };
     }
 
     // 1. Higher Timeframe (1H) Analysis for Trend
@@ -200,11 +200,11 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
 
     const lastCandle = enhancedD5m[enhancedD5m.length - 1];
     if (!lastCandle || !lastCandle.ema50 || !lastCandle.rsi14 || lastCandle.volume === undefined || !lastCandle.avgVolume) {
-        return { signal: 'hold', strength: 0, confluences: ['Incomplete indicator data on last candle.'] };
+        return { signal: 'None', strength: 0, confluences: ['Incomplete indicator data on last candle.'] };
     }
 
     const confluences: string[] = [];
-    let signal: 'buy' | 'sell' | 'hold' = 'hold';
+    let signal: 'Buy' | 'Sell' | 'None' = 'None';
     let stopLoss: number | undefined;
     let takeProfit: number | undefined;
 
@@ -241,7 +241,7 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         
         // Final Signal Decision
         if (confluences.length >= 4) { // Require at least 4 confluences
-            signal = 'buy';
+            signal = 'Buy';
             const recentSwingLow = swingLows.pop();
             if (recentSwingLow) {
                 stopLoss = recentSwingLow.low * 0.9995; // Slightly below swing low
@@ -282,7 +282,7 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
 
         // Final Signal Decision
         if (confluences.length >= 4) {
-            signal = 'sell';
+            signal = 'Sell';
             const recentSwingHigh = swingHighs.pop();
             if (recentSwingHigh) {
                 stopLoss = recentSwingHigh.high * 1.0005; // Slightly above swing high
@@ -292,8 +292,8 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         }
     }
 
-    if (signal === 'hold' || !stopLoss || !takeProfit) {
-        return { signal: 'hold', strength: 0, confluences: ['No high-probability setup found.'] };
+    if (signal === 'None' || !stopLoss || !takeProfit) {
+        return { signal: 'None', strength: 0, confluences: ['No high-probability setup found.'] };
     }
 
     return {
