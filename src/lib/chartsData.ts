@@ -28,7 +28,7 @@ export async function getTopSymbols(): Promise<SymbolInfo[]> {
  * @param timeframe e.g., "1m", "5m", "15m", "1h", "1d"
  */
 export async function getChartData(symbol: string, timeframe: string) {
-  const url = `/binance-api/api/v3/klines?symbol=${symbol}&interval=${timeframe}&limit=1000`;
+  const url = `/binance-api/api/v3/klines?symbol=${symbol}&interval=${timeframe}&limit=500`;
 
   const res = await fetch(url);
   const data = await res.json();

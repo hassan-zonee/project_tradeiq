@@ -13,7 +13,9 @@ import {
 import { Separator } from "../../../../components/ui/separator";
 import { CandleChart, type IndicatorType } from "../../../../components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
-import { analyzeConfluences } from "../../../../lib/TechnicalAnalysis";
+import { analyzeConfluences, getHigherTimeframe, type TradingSignal } from "../../../../lib/TechnicalAnalysis";
+
+const ANALYSIS_MIN_LOADING_TIME_MS = 0;
 
 
 
@@ -159,7 +161,8 @@ export const AnalysisSection = (): JSX.Element => {
     return 'bg-green-600';
   };
 
-  const handleAnalyzeClick = () => {
+  const handleAnalyzeClick = async () => {
+    // 1. Set loading state and reset previous results
     setIsAnalysisLoading(true);
     setShowIndicators(false);
     setVisibleIndicators([]);
@@ -169,47 +172,55 @@ export const AnalysisSection = (): JSX.Element => {
     setTakeProfit(null);
     setKeyLevels({ support: null, resistance: null });
 
-    // Initial delay to show loading and generate signal
-    setTimeout(async () => {
-      let support: number | null = null;
-      let resistance: number | null = null;
-      try {
+    const startTime = Date.now();
+
+    // 2. Perform all async analysis
+    let support: number | null = null;
+    let resistance: number | null = null;
+    let analysis: TradingSignal;
+    try {
         const { getChartData } = await import("../../../../lib/chartsData");
-        const oneHourData = await getChartData(selectedPair, '1h');
-        if (oneHourData && oneHourData.length > 0) {
-          const recentData = oneHourData.slice(-50);
-          if (recentData.length > 0) {
-            resistance = Math.max(...recentData.map(c => c.high));
-            support = Math.min(...recentData.map(c => c.low));
-          }
+        const supportResistanceData = await getChartData(selectedPair, getHigherTimeframe(selectedTimeframe));
+        if (supportResistanceData && supportResistanceData.length > 0) {
+            const recentData = supportResistanceData.slice(-30);
+            if (recentData.length > 0) {
+                resistance = Math.max(...recentData.map(c => c.high));
+                support = Math.min(...recentData.map(c => c.low));
+            }
         }
-      } catch (error) {
-        console.error("Failed to fetch 1h data for S/R analysis:", error);
-      }
+        analysis = await analyzeConfluences(selectedPair, selectedTimeframe);
+    } catch (error) {
+        console.error("Analysis failed:", error);
+        analysis = { signal: 'None', strength: 0, confluences: ['Error during analysis.'], entryPrice: undefined, stopLoss: undefined, takeProfit: undefined };
+    }
 
-      const analysis = await analyzeConfluences(selectedPair, selectedTimeframe);
+    // 3. Set the analysis results to state
+    setSignal(analysis.signal);
+    setStopLoss(analysis.stopLoss ? `${analysis.stopLoss.toFixed(5)}` : null);
+    setTakeProfit(analysis.takeProfit ? `${analysis.takeProfit.toFixed(5)}` : null);
+    setSignalStrength(analysis.strength);
+    setEntryPrice(analysis.entryPrice || null);
+    setConfluences(analysis.confluences);
+    setKeyLevels({ support, resistance });
+    setShowIndicators(true);
 
-      setSignal(analysis.signal);
-      setStopLoss(analysis.stopLoss ? `${analysis.stopLoss.toFixed(5)}` : null);
-      setTakeProfit(analysis.takeProfit ? `${analysis.takeProfit.toFixed(5)}` : null);
-      setSignalStrength(analysis.strength);
-      setEntryPrice(analysis.entryPrice || null);
-      setConfluences(analysis.confluences);
-      setKeyLevels({ support, resistance });
+    // 4. Calculate total loading time and indicator animation timing
+    const elapsedTime = Date.now() - startTime;
+    const totalLoadingTime = Math.max(elapsedTime, ANALYSIS_MIN_LOADING_TIME_MS);
+    const indicatorAnimationDuration = totalLoadingTime * 0.8; // Use 80% of loading time for animation
+    const indicatorStaggerTime = indicatorAnimationDuration / allIndicators.length;
 
-      setShowIndicators(true); // Enable indicator drawing on the chart
-
-      // Sequentially add indicators to the visible list
-      allIndicators.forEach((indicator, index) => {
+    // 5. Start indicator animation
+    allIndicators.forEach((indicator, index) => {
         setTimeout(() => {
-          setVisibleIndicators(prev => [...prev, indicator]);
-          // Turn off loading spinner after the last indicator is revealed
-          if (index === allIndicators.length - 1) {
-            setIsAnalysisLoading(false);
-          }
-        }, (index + 1) * 1000); // Stagger each indicator by 1 second
-      });
-    }, 1000); // 1-second delay before analysis results appear
+            setVisibleIndicators(prev => [...prev, indicator]);
+        }, index * indicatorStaggerTime);
+    });
+
+    // 6. Set a timer to hide the loading spinner
+    setTimeout(() => {
+        setIsAnalysisLoading(false);
+    }, totalLoadingTime);
   };
 
   useEffect(() => {

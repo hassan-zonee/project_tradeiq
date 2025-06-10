@@ -203,7 +203,7 @@ const detectRsiDivergence = (data: EnhancedCandle[], trend: 'uptrend' | 'downtre
 };
 
 // --- MAIN ANALYSIS FUNCTION ---
-const getHigherTimeframe = (timeframe: string): string => {
+export const getHigherTimeframe = (timeframe: string): string => {
     switch (timeframe) {
         case '15m':
             return '1h';
@@ -267,7 +267,7 @@ export const analyzeConfluences = async (pair: string, timeframe: string): Promi
     let stopLoss: number | undefined;
     let takeProfit: number | undefined;
 
-    const { highs: swingHighs, lows: swingLows } = findSwingPoints(enhancedEntry, 10);
+    const { highs: swingHighs, lows: swingLows } = findSwingPoints(enhancedEntry.slice(-50), 10);
     
     // --- Buy Signal Logic ---
     if (trend === 'uptrend') {
