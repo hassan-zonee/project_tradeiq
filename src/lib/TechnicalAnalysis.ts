@@ -172,7 +172,7 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
     // Fetch data for both timeframes
     const [d1h, d5m] = await Promise.all([
         getChartData(pair, '1h'), 
-        getChartData(pair, '5min')
+        getChartData(pair, '30m')
     ]);
 
     if (!d1h || d1h.length < 200 || !d5m || d5m.length < 200) {

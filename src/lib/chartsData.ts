@@ -33,8 +33,10 @@ export async function getChartData(symbol: string, timeframe: string) {
   const res = await fetch(url);
   const data = await res.json();
 
-  if (!Array.isArray(data)) {
-    throw new Error("Failed to fetch chart data");
+  // Improved error handling to log the actual response from the API
+  if (!res.ok || !Array.isArray(data)) {
+    console.error("Failed to fetch chart data. Response:", data);
+    throw new Error(`Failed to fetch chart data for ${symbol}. Status: ${res.status}. Response: ${JSON.stringify(data)}`);
   }
 
   return data.map((point: any) => ({
@@ -43,5 +45,6 @@ export async function getChartData(symbol: string, timeframe: string) {
     high: parseFloat(point[2]),
     low: parseFloat(point[3]),
     close: parseFloat(point[4]),
+    volume: parseFloat(point[5]), // Include volume data
   }));
 }
