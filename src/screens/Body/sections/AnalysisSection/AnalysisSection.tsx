@@ -187,7 +187,7 @@ export const AnalysisSection = (): JSX.Element => {
         console.error("Failed to fetch 1h data for S/R analysis:", error);
       }
 
-      const analysis = await analyzeConfluences(selectedPair, selectedTimeframe);
+      const analysis = await analyzeConfluences(selectedPair);
 
       setSignal(analysis.signal);
       setStopLoss(analysis.stopLoss ? `${analysis.stopLoss.toFixed(5)}` : null);
@@ -306,6 +306,7 @@ export const AnalysisSection = (): JSX.Element => {
                       <SelectItem value="15m">15m</SelectItem>
                       <SelectItem value="30m">30m</SelectItem>
                       <SelectItem value="1h">1h</SelectItem>
+                      <SelectItem value="4h">4h</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
