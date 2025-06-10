@@ -5,11 +5,12 @@ import { getChartData } from './chartsData';
 // --- TYPE DEFINITIONS ---
 // Extending CandlestickData to include calculated indicators and volume
 export interface EnhancedCandle extends CandlestickData<UTCTimestamp> {
-    volume?: number; // Assuming getChartData can provide volume
+    volume?: number;
     ema200?: number;
     ema50?: number;
     rsi14?: number;
     avgVolume?: number;
+    atr14?: number; // Added for volatility-based SL/TP
 }
 
 export interface TradingSignal {
@@ -110,6 +111,39 @@ const calculateAvgVolume = (data: { volume?: number }[], period: number = 20): (
     return avgVolume;
 }
 
+const calculateATR = (data: EnhancedCandle[], period: number = 14): (number | undefined)[] => {
+    if (data.length < period) return new Array(data.length).fill(undefined);
+
+    const atr: (number | undefined)[] = new Array(data.length).fill(undefined);
+    let previousAtr: number | undefined = undefined;
+
+    for (let i = 0; i < data.length; i++) {
+        const candle = data[i];
+        const prevCandle = i > 0 ? data[i - 1] : null;
+
+        if (!prevCandle) continue;
+
+        const tr1 = candle.high - candle.low;
+        const tr2 = Math.abs(candle.high - prevCandle.close);
+        const tr3 = Math.abs(candle.low - prevCandle.close);
+        const trueRange = Math.max(tr1, tr2, tr3);
+
+        if (i < period) {
+            if (atr[period - 1] === undefined) atr[period - 1] = 0;
+            atr[period - 1]! += trueRange;
+            if (i === period - 1) {
+                atr[period - 1]! /= period;
+                previousAtr = atr[period - 1];
+            }
+        } else {
+            const currentAtr = (previousAtr! * (period - 1) + trueRange) / period;
+            atr[i] = currentAtr;
+            previousAtr = currentAtr;
+        }
+    }
+    return atr;
+};
+
 // --- CONFLUENCE ANALYSIS ---
 
 // 1. Trend Detection (1H)
@@ -169,37 +203,61 @@ const detectRsiDivergence = (data: EnhancedCandle[], trend: 'uptrend' | 'downtre
 };
 
 // --- MAIN ANALYSIS FUNCTION ---
-export const analyzeConfluences = async (pair: string): Promise<TradingSignal> => {
+const getHigherTimeframe = (timeframe: string): string => {
+    switch (timeframe) {
+        case '15m':
+            return '1h';
+        case '30m':
+            return '1h';
+        case '1h':
+            return '4h';
+        case '4h':
+            return '1d';    
+        default:
+            return '4h'; // For '4h' and any other case
+    }
+};
+
+export const analyzeConfluences = async (pair: string, timeframe: string): Promise<TradingSignal> => {
     // Fetch data for both timeframes
-    const [d1h, d5m] = await Promise.all([
-        getChartData(pair, '1h'), 
-        getChartData(pair, '30m')
+    const higherTimeframe = getHigherTimeframe(timeframe);
+    const [higherTimeframeData, entryTimeframeData] = await Promise.all([
+        getChartData(pair, higherTimeframe),
+        getChartData(pair, timeframe)
     ]);
 
-    if (!d1h || d1h.length < 200 || !d5m || d5m.length < 200) {
+    if (!higherTimeframeData || higherTimeframeData.length < 200 || !entryTimeframeData || entryTimeframeData.length < 200) {
         return { signal: 'None', strength: 0, confluences: ['Insufficient data for analysis.'] };
     }
 
     // 1. Higher Timeframe (1H) Analysis for Trend
-    const ema200_1h = calculateEMA(d1h, 200);
-    const enhancedD1h: EnhancedCandle[] = d1h.map((d, i) => ({ ...d, time: d.time as UTCTimestamp, ema200: ema200_1h[i] }));
-    const trend = detectTrend(enhancedD1h);
+    const ema200_htf = calculateEMA(higherTimeframeData, 200);
+    const ema50_htf = calculateEMA(higherTimeframeData, 50);
+    const enhancedHTF: EnhancedCandle[] = higherTimeframeData.map((d, i) => ({ 
+        ...d, 
+        time: d.time as UTCTimestamp, 
+        ema200: ema200_htf[i],
+        ema50: ema50_htf[i]
+    }));
+    const trend = detectTrend(enhancedHTF);
 
     // 2. Entry Timeframe (5min) Analysis
-    const ema200_5m = calculateEMA(d5m, 200);
-    const ema50_5m = calculateEMA(d5m, 50);
-    const rsi14_5m = calculateRSI(d5m, 14);
-    const avgVol_5m = calculateAvgVolume(d5m as { volume?: number }[], 20);
-    const enhancedD5m: EnhancedCandle[] = d5m.map((d, i) => ({ 
+    const atr14_entry = calculateATR(entryTimeframeData.map(d => ({...d, time: d.time as UTCTimestamp})), 14);
+    const ema200_entry = calculateEMA(entryTimeframeData, 200);
+    const ema50_entry = calculateEMA(entryTimeframeData, 50);
+    const rsi14_entry = calculateRSI(entryTimeframeData, 14);
+    const avgVol_entry = calculateAvgVolume(entryTimeframeData as { volume?: number }[], 20);
+    const enhancedEntry: EnhancedCandle[] = entryTimeframeData.map((d, i) => ({ 
         ...(d as EnhancedCandle),
         time: d.time as UTCTimestamp,
-        ema200: ema200_5m[i],
-        ema50: ema50_5m[i],
-        rsi14: rsi14_5m[i],
-        avgVolume: avgVol_5m[i],
+        ema200: ema200_entry[i],
+        ema50: ema50_entry[i],
+        rsi14: rsi14_entry[i],
+        avgVolume: avgVol_entry[i],
+        atr14: atr14_entry[i],
     }));
 
-    const lastCandle = enhancedD5m[enhancedD5m.length - 1];
+    const lastCandle = enhancedEntry[enhancedEntry.length - 1];
     if (!lastCandle || !lastCandle.ema50 || !lastCandle.rsi14 || lastCandle.volume === undefined || !lastCandle.avgVolume) {
         return { signal: 'None', strength: 0, confluences: ['Incomplete indicator data on last candle.'] };
     }
@@ -209,11 +267,11 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
     let stopLoss: number | undefined;
     let takeProfit: number | undefined;
 
-    const { highs: swingHighs, lows: swingLows } = findSwingPoints(enhancedD5m, 10);
+    const { highs: swingHighs, lows: swingLows } = findSwingPoints(enhancedEntry, 10);
     
     // --- Buy Signal Logic ---
     if (trend === 'uptrend') {
-        confluences.push('Agreement: 1H Trend is UP.');
+        confluences.push(`Agreement: ${higherTimeframe.toUpperCase()} Trend is UP.`);
 
         // Pullback check
         const priceRange = lastCandle.high - lastCandle.low;
@@ -225,7 +283,7 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         }
 
         // RSI Divergence check
-        if (detectRsiDivergence(enhancedD5m, 'uptrend')) {
+        if (detectRsiDivergence(enhancedEntry, 'uptrend')) {
             confluences.push('Confirmation: Bullish RSI Divergence found.');
         }
 
@@ -243,18 +301,16 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         // Final Signal Decision
         if (confluences.length >= 2) { // Require at least 2 confluences
             signal = 'Buy';
-            const recentSwingLow = swingLows.pop();
-            if (recentSwingLow) {
-                stopLoss = recentSwingLow.low * 0.9995; // Slightly below swing low
-                const risk = lastCandle.close - stopLoss;
-                takeProfit = lastCandle.close + (risk * 2);
+            if (lastCandle.atr14) {
+                stopLoss = lastCandle.close - (lastCandle.atr14 * 1.5);
+                takeProfit = lastCandle.close + (lastCandle.atr14 * 1.5);
             }
         }
     }
 
     // --- Sell Signal Logic ---
     else if (trend === 'downtrend') {
-        confluences.push('Agreement: 1H Trend is DOWN.');
+        confluences.push(`Agreement: ${higherTimeframe.toUpperCase()} Trend is DOWN.`);
 
         // Pullback check
         const priceRange = lastCandle.high - lastCandle.low;
@@ -266,7 +322,7 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         }
 
         // RSI Divergence check
-        if (detectRsiDivergence(enhancedD5m, 'downtrend')) {
+        if (detectRsiDivergence(enhancedEntry, 'downtrend')) {
             confluences.push('Confirmation: Bearish RSI Divergence found.');
         }
 
@@ -284,11 +340,9 @@ export const analyzeConfluences = async (pair: string): Promise<TradingSignal> =
         // Final Signal Decision
         if (confluences.length >= 2) { // Require at least 2 confluences
             signal = 'Sell';
-            const recentSwingHigh = swingHighs.pop();
-            if (recentSwingHigh) {
-                stopLoss = recentSwingHigh.high * 1.0005; // Slightly above swing high
-                const risk = stopLoss - lastCandle.close;
-                takeProfit = lastCandle.close - (risk * 2);
+            if (lastCandle.atr14) {
+                stopLoss = lastCandle.close + (lastCandle.atr14 * 1.5);
+                takeProfit = lastCandle.close - (lastCandle.atr14 * 1.5);
             }
         }
     }
