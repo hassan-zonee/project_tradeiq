@@ -15,7 +15,7 @@ import { CandleChart, type IndicatorType } from "@/components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 import { analyzeConfluences, getHigherTimeframe, type TradingSignal } from "@/lib/TechnicalAnalysis";
 
-const ANALYSIS_MIN_LOADING_TIME_MS = 5000;
+const ANALYSIS_MIN_LOADING_TIME_MS = 0;
 
 
 
