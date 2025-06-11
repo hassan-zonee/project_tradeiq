@@ -27,19 +27,31 @@ export default function HomePage() {
             <IntroductionSection />
           </motion.div>
 
-          {[ClientsSection, TestimonalsSections, SubscriptionPlansSection].map(
-            (Section, index) => (
-              <motion.div
-                key={index}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="mt-16"
-              >
-                <Section />
-              </motion.div>
-            )
-          )}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0 }}
+            className="mt-16"
+          >
+            <ClientsSection />
+          </motion.div>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mt-16"
+          >
+            <TestimonalsSections />
+          </motion.div>
+          <motion.div
+            id="subscription-plans"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-16"
+          >
+            <SubscriptionPlansSection />
+          </motion.div>
         </div>
       </main>
 

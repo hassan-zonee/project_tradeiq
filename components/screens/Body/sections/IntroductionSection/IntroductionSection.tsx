@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRouter } from "next/router";
 import { onAuthChange, signInWithGoogle } from "@/services/AuthService";
 import { User } from "firebase/auth";
 
 export const IntroductionSection = (): JSX.Element => {
-  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -15,12 +13,19 @@ export const IntroductionSection = (): JSX.Element => {
   }, []);
 
   const handleGetStartedClick = async () => {
+    const scrollToSubscription = () => {
+      const subscriptionSection = document.getElementById("subscription-plans");
+      if (subscriptionSection) {
+        subscriptionSection.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
     if (user) {
-      router.push('/analysis');
+      scrollToSubscription();
     } else {
       try {
         await signInWithGoogle();
-        router.push('/analysis');
+        scrollToSubscription();
       } catch (error) {
         console.error("Error signing in with Google: ", error);
       }
