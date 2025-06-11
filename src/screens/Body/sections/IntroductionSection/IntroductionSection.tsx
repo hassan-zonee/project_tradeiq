@@ -1,10 +1,31 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { onAuthChange, signInWithGoogle } from "../../../../services/AuthService";
+import { User } from "firebase/auth";
 
 export const IntroductionSection = (): JSX.Element => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthChange(setUser);
+    return () => unsubscribe();
+  }, []);
+
+  const handleGetStartedClick = async () => {
+    if (user) {
+      navigate('/analysis');
+    } else {
+      try {
+        await signInWithGoogle();
+        navigate('/analysis');
+      } catch (error) {
+        console.error("Error signing in with Google: ", error);
+      }
+    }
+  };
   // Stats data for mapping
   const stats = [
     { value: "91%", label: "Accuracy Rate" },
@@ -62,7 +83,7 @@ export const IntroductionSection = (): JSX.Element => {
               transition={{ duration: 0.5, delay: 0.6 }}
             >
               <motion.button 
-                onClick={() => navigate('/analysis')}
+                onClick={handleGetStartedClick}
                 className="bg-[#3b81f5] text-white font-medium px-8 py-3 h-[50px] rounded-lg font-['Roboto',Helvetica]"
                 whileHover={{ scale: 1.05, backgroundColor: "#3273dc" }}
                 whileTap={{ scale: 0.95 }}
