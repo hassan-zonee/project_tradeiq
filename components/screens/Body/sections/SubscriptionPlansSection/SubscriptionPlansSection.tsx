@@ -39,21 +39,27 @@ const planFeatures = {
 const plans = [
   {
     name: "Basic Plan",
-    price: "$20",
+    originalPrice: "$99.99",
+    price: "$19",
+    discount: "81%",
     features: planFeatures.basic,
     popular: false,
     priceId: STRIPE_PRODUCT_IDS.basic,
   },
   {
     name: "Pro Plan",
-    price: "$35",
+    originalPrice: "$179",
+    price: "$29",
+    discount: "84%",
     features: planFeatures.pro,
     popular: true,
     priceId: STRIPE_PRODUCT_IDS.pro,
   },
   {
     name: "Premium Plan",
-    price: "$50",
+    originalPrice: "$299",
+    price: "$49",
+    discount: "84%",
     features: planFeatures.premium,
     popular: false,
     priceId: STRIPE_PRODUCT_IDS.premium,
@@ -95,12 +101,16 @@ export const SubscriptionPlansSection = (): JSX.Element => {
   return (
     <section id="subscription-plans" className="py-12 flex flex-col w-full items-center">
       <div className="flex flex-col w-full max-w-7xl items-center mb-12">
+        <div className="mb-6">
+          <span className="bg-red-100 text-red-800 text-sm font-medium px-4 py-1.5 rounded-full">
+            🔥 Limited Time Offer
+          </span>
+        </div>
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-3">
-          Subscription Plans
+          Special Launch Pricing
         </h2>
         <p className="text-base text-[#4a5462] text-center max-w-2xl">
-          Choose the perfect plan to elevate your trading strategy with our
-          AI-powered analysis and personalized recommendations.
+          Join now and save up to 84% on your subscription. This offer won't last long!
         </p>
       </div>
 
@@ -137,11 +147,19 @@ export const SubscriptionPlansSection = (): JSX.Element => {
               <h3 className="font-semibold text-xl text-gray-800 mb-2">
                 {plan.name}
               </h3>
-              <div className="flex items-end mb-6">
+              <div className="flex items-end gap-2 mb-1">
                 <span className="font-bold text-3xl text-gray-800">
                   {plan.price}
                 </span>
                 <span className="text-[#6a7280] ml-1">/month</span>
+              </div>
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-gray-500 line-through text-sm">
+                  {plan.originalPrice}
+                </span>
+                <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                  Save {plan.discount}
+                </span>
               </div>
               <div className="mb-8">
                 <ul className="space-y-3">
@@ -176,9 +194,18 @@ export const SubscriptionPlansSection = (): JSX.Element => {
               >
                 {isLoading === index ? 'Processing...' : 'Get Started'}
               </Button>
+              {plan.popular && (
+                <p className="text-center text-sm text-gray-500 mt-4">
+                  🔥 Most popular choice - Limited spots!
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}
+      </div>
+      <div className="mt-8 text-center text-sm text-gray-500">
+        <p>⚡️ Special launch pricing - Save up to 84% today!</p>
+        <p className="mt-1">Offer valid for a limited time only. Regular pricing will resume soon.</p>
       </div>
     </section>
   );
