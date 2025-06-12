@@ -2,7 +2,7 @@ import '@fontsource/pacifico';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://localhost:3000'),
+  metadataBase: new URL('http://tradeiq.site'),
   title: {
     default: 'TradeIQ - AI-Powered Trading Platform',
     template: '%s | TradeIQ',
