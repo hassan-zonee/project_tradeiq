@@ -2,7 +2,7 @@ import '@fontsource/pacifico';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "TradeIQ - AI-Powered Trading Platform",
+  title: "TradeIQ",
   description: 'TradeIQ is an AI-powered trading platform that uses machine learning to analyze market data and make trading decisions.',
 
   openGraph: {
