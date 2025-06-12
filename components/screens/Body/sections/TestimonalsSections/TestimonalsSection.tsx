@@ -10,46 +10,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 // Enhanced testimonial data with more details
-const testimonials = [
+const allTestimonials = [
   {
     id: 1,
-    name: "Michael Chen",
-    role: "Professional Trader",
-    badge: "Verified Pro",
-    image: "/img-89.png",
-    quote: "TradeIQ's AI analysis has completely transformed my trading strategy. The accuracy of signals and real-time insights have significantly improved my win rate from 65% to 89% in just 3 months.",
-    stats: {
-      profitIncrease: "156%",
-      successRate: "89%",
-      monthsUsing: "8"
-    },
-    rating: 5,
-    date: "March 2024",
-    achievement: "Top Performer 2024"
-  },
-  {
-    id: 2,
-    name: "Sarah Anderson",
-    role: "Institutional Trader",
-    badge: "Enterprise User",
-    image: "/img-113.png",
-    quote: "The platform's ability to analyze multiple markets simultaneously and provide actionable insights has given me a significant edge. Our firm's portfolio performance increased by 45% since adopting TradeIQ.",
-    stats: {
-      profitIncrease: "45%",
-      successRate: "92%",
-      monthsUsing: "12"
-    },
-    rating: 5,
-    date: "February 2024",
-    achievement: "Best Institution 2023"
-  },
-  {
-    id: 3,
     name: "David Okonjo",
-    role: "Crypto Trader",
-    badge: "Crypto Expert",
+    role: "Professional Crypto Trader",
+    badge: "Elite Trader",
     image: "/img-137.png",
-    quote: "The AI-powered risk management features have helped me maintain consistent profits while protecting my capital. Best trading tool I've used, especially during volatile market conditions.",
+    quote: "TradeIQ's risk management and market analysis have transformed my trading. The AI signals helped me increase my win rate significantly, even during high volatility periods.",
     stats: {
       profitIncrease: "112%",
       successRate: "85%",
@@ -57,15 +25,47 @@ const testimonials = [
     },
     rating: 5,
     date: "March 2024",
-    achievement: "Crypto Master"
+    achievement: "Top Trader 2024"
+  },
+  {
+    id: 2,
+    name: "Sarah Chen",
+    role: "Institutional Trader",
+    badge: "Pro Trader",
+    image: "/img-113.png",
+    quote: "The platform's ability to analyze multiple trading pairs simultaneously and provide actionable signals has given us a significant edge. Our trading performance increased by 45% since adopting TradeIQ.",
+    stats: {
+      profitIncrease: "45%",
+      successRate: "92%",
+      monthsUsing: "12"
+    },
+    rating: 5,
+    date: "February 2024",
+    achievement: "Best Performance 2023"
+  },
+  {
+    id: 3,
+    name: "Michael Zhang",
+    role: "Crypto Market Analyst",
+    badge: "Market Expert",
+    image: "/img-89.png",
+    quote: "TradeIQ's AI analysis has revolutionized our trading approach. The pattern recognition and market sentiment analysis improved our success rate from 65% to 89% in just months.",
+    stats: {
+      profitIncrease: "156%",
+      successRate: "89%",
+      monthsUsing: "8"
+    },
+    rating: 5,
+    date: "March 2024",
+    achievement: "Top Analyst 2024"
   },
   {
     id: 4,
-    name: "Emma Thompson",
-    role: "Forex Trader",
-    badge: "FX Specialist",
+    name: "Alex Thompson",
+    role: "Day Trader",
+    badge: "Verified Trader",
     image: "/img-138.png",
-    quote: "TradeIQ's pattern recognition for forex pairs is unmatched. I've been able to spot opportunities I would have missed otherwise. The real-time alerts are a game-changer.",
+    quote: "The real-time alerts and technical analysis have been game-changers for my trading strategy. TradeIQ's AI helps me spot profitable opportunities across multiple markets efficiently.",
     stats: {
       profitIncrease: "78%",
       successRate: "88%",
@@ -73,8 +73,33 @@ const testimonials = [
     },
     rating: 5,
     date: "January 2024",
-    achievement: "Forex Expert"
+    achievement: "Trading Excellence"
+  },
+  {
+    id: 5,
+    name: "Nina Patel",
+    role: "Portfolio Trader",
+    badge: "Strategy Expert",
+    image: "/img-139.png",
+    quote: "TradeIQ's analysis and portfolio optimization tools have transformed how we manage positions. The AI predictions for market movements are remarkably accurate.",
+    stats: {
+      profitIncrease: "94%",
+      successRate: "91%",
+      monthsUsing: "7"
+    },
+    rating: 5,
+    date: "March 2024",
+    achievement: "Strategy Master"
   }
+];
+
+// All testimonials with images appear first in a fixed order
+const testimonials = [
+  allTestimonials[0], // David Okonjo - img-137.png
+  allTestimonials[1], // Sarah Chen - img-113.png
+  allTestimonials[2], // Michael Zhang - img-89.png
+  allTestimonials[3], // Alex Thompson - img-138.png
+  allTestimonials[4], // Nina Patel - img-139.png
 ];
 
 export const TestimonalsSections = (): JSX.Element => {
