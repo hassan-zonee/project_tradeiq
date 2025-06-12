@@ -45,14 +45,14 @@ export const IntroductionSection = (): JSX.Element => {
     },
     {
       icon: Users,
-      value: "50K+",
+      value: "20K+",
       label: "Active Users",
       description: "Growing community",
       gradient: "from-indigo-500 to-purple-500"
     },
     {
       icon: Globe,
-      value: "100+",
+      value: "50+",
       label: "Countries",
       description: "Global presence",
       gradient: "from-purple-500 to-pink-500"
@@ -212,7 +212,7 @@ export const IntroductionSection = (): JSX.Element => {
                     </div>
                     <div className="pl-4">
                       <p className="font-normal text-sm text-[#4a5462] line-clamp-2">
-                        Join 50,000+ traders worldwide
+                        Join 20,000+ traders worldwide
                       </p>
                     </div>
                   </div>
