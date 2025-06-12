@@ -6,48 +6,110 @@ import { TestimonalsSections } from "@/components/screens/Body/sections/Testimon
 import { ClientsSection } from "@/components/screens/Body/sections/ClientsSection/ClientsSection";
 import { SubscriptionPlansSection } from "@/components/screens/Body/sections/SubscriptionPlansSection/SubscriptionPlansSection";
 
+// Animation variants for sections
+const pageVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.5,
+      when: "beforeChildren",
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+    },
+  },
+};
+
 export default function HomePage() {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col min-h-screen w-full bg-[#f9fafa]"
+      initial="hidden"
+      animate="visible"
+      variants={pageVariants}
+      className="flex flex-col min-h-screen w-full bg-[#f9fafa] overflow-hidden"
     >
-      <HeaderSection />
+      {/* Background gradient */}
+      <div className="fixed inset-0 bg-gradient-light -z-10" />
+      
+      {/* Animated background shapes */}
+      <div className="fixed inset-0 -z-5 overflow-hidden">
+        <motion.div
+          className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+          animate={{
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+        <motion.div
+          className="absolute top-40 right-10 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+          animate={{
+            y: [0, 50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: 2,
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+          animate={{
+            x: [-50, 50, -50],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: 4,
+          }}
+        />
+      </div>
+
+      <motion.div variants={sectionVariants}>
+        <HeaderSection />
+      </motion.div>
 
       <main className="flex justify-center w-full">
-        <div className="flex flex-col w-full max-w-screen-xl relative -mt-10">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
+        <div className="flex flex-col w-full max-w-screen-xl relative -mt-10 px-4 md:px-6">
+          <motion.div variants={sectionVariants}>
             <IntroductionSection />
           </motion.div>
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0 }}
+          <motion.div 
+            variants={sectionVariants}
             className="mt-16"
           >
             <ClientsSection />
           </motion.div>
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+
+          <motion.div 
+            variants={sectionVariants}
             className="mt-16"
           >
             <TestimonalsSections />
           </motion.div>
-          <motion.div
+
+          <motion.div 
             id="subscription-plans"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            variants={sectionVariants}
             className="mt-16"
           >
             <SubscriptionPlansSection />
@@ -55,7 +117,9 @@ export default function HomePage() {
         </div>
       </main>
 
-      <FooterSection />
+      <motion.div variants={sectionVariants}>
+        <FooterSection />
+      </motion.div>
     </motion.div>
   );
 }

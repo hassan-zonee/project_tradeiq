@@ -2,6 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import animations */
+@import './animations.css';
+
+/* Custom theme colors */
+:root {
+  --primary: #3b81f5;
+  --primary-hover: #3273dc;
+  --secondary: #4a5462;
+  --accent: #f9fafa;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+/* Common background gradients */
+.bg-gradient-primary {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600;
+}
+
+.bg-gradient-light {
+  @apply bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30;
+}
+
+/* Common animations */
+.hover-scale {
+  @apply transition-transform duration-300 hover:scale-105;
+}
+
+.hover-lift {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+}
+
+/* Glassmorphism */
+.glass {
+  @apply bg-white/70 backdrop-blur-lg;
+}
+
+.glass-card {
+  @apply bg-white/90 backdrop-blur-md shadow-xl;
+}
+
+/* Common card styles */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-[#3b81f5] text-white font-medium px-8 py-3 rounded-lg 
+         hover:bg-[#3273dc] transition-all duration-300
+         active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-outline {
+  @apply border-2 border-[#3b81f5] text-[#3b81f5] font-medium px-8 py-3 rounded-lg
+         hover:bg-[#3b81f5] hover:text-white transition-all duration-300
+         active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Text gradients */
+.text-gradient {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text;
+}
+
+/* Floating elements */
+.floating {
+  animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Shine effect */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
+
+/* Responsive typography */
+@layer base {
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold;
+  }
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold;
+  }
+  h3 {
+    @apply text-2xl md:text-3xl font-bold;
+  }
+  h4 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+}
+
 @layer components {
   .all-\[unset\] {
     all: unset;
