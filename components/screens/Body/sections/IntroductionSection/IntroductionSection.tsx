@@ -1,16 +1,10 @@
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { onAuthChange, signInWithGoogle } from "@/services/AuthService";
-import { User } from "firebase/auth";
+import { signInWithGoogle } from "@/services/AuthService";
+import { useAuth } from "@/context/AuthContext";
 
 export const IntroductionSection = (): JSX.Element => {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthChange(setUser);
-    return () => unsubscribe();
-  }, []);
+  const { user, subscription } = useAuth();
 
   const handleGetStartedClick = async () => {
     const scrollToSubscription = () => {
@@ -21,16 +15,24 @@ export const IntroductionSection = (): JSX.Element => {
     };
 
     if (user) {
+      // If user is already subscribed, navigate to analysis page
+      if (subscription.isSubscribed) {
+        window.location.href = '/analysis';
+        return;
+      }
+      // Otherwise, scroll to subscription plans
       scrollToSubscription();
     } else {
       try {
         await signInWithGoogle();
-        scrollToSubscription();
+        // Auth state will be managed by AuthContext
+        // scrollToSubscription will be handled after sign-in via AuthContext
       } catch (error) {
         console.error("Error signing in with Google: ", error);
       }
     }
   };
+
   // Stats data for mapping
   const stats = [
     { value: "91%", label: "Accuracy Rate" },
