@@ -44,6 +44,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
+        <title>TradeIQ - AI Powered Trading Platform</title>
       </head>
       <body>{children}</body>
     </html>
