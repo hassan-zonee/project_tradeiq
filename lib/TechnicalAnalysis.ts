@@ -23,12 +23,12 @@ export interface EnhancedCandle extends CandlestickData<UTCTimestamp> {
 
 export interface TradingSignal {
     signal: 'Buy' | 'Sell' | 'None';
-    strength: number; // Number of confluences met (out of 6)
-    stopLoss?: number;
-    takeProfit?: number;
-    entryPrice?: number;
+    strength: number;        // Integer 0-80
+    stopLoss: number;       // Will be 0 when no signal
+    takeProfit: number;     // Will be 0 when no signal
+    entryPrice: number;     // Will be 0 when no signal
     confluences: string[];
-    riskRewardRatio?: number;
+    riskRewardRatio: number; // Will be 0 when no signal
 }
 
 // Add configuration interface at the top after imports
@@ -279,7 +279,6 @@ export const analyzeConfluences = async (
     timeframe: string,
     config: Partial<TradingConfig> = {}
 ): Promise<TradingSignal> => {
-    // Merge provided config with defaults
     const tradingConfig: TradingConfig = {
         ...defaultTradingConfig,
         ...config
@@ -292,7 +291,15 @@ export const analyzeConfluences = async (
     ]);
 
     if (!higherTimeframeData || higherTimeframeData.length < 200 || !entryTimeframeData || entryTimeframeData.length < 200) {
-        return { signal: 'None', strength: 0, confluences: ['Insufficient data for analysis.'] };
+        return {
+            signal: 'None',
+            strength: 0,
+            stopLoss: 0,
+            takeProfit: 0,
+            entryPrice: 0,
+            confluences: ['Insufficient data for analysis - Equal buy/sell pressure'],
+            riskRewardRatio: 0
+        };
     }
 
     // Calculate all indicators
@@ -336,126 +343,120 @@ export const analyzeConfluences = async (
     }));
 
     const lastCandle = enhancedEntry[enhancedEntry.length - 1];
+    
+    // Handle incomplete indicator data
     if (!lastCandle || !lastCandle.ema50 || !lastCandle.rsi14) {
-        return { signal: 'None', strength: 0, confluences: ['Incomplete indicator data.'] };
+        return {
+            signal: 'None',
+            strength: 0,
+            stopLoss: 0,
+            takeProfit: 0,
+            entryPrice: 0,
+            confluences: ['Incomplete indicator data - Equal buy/sell pressure'],
+            riskRewardRatio: 0
+        };
     }
 
     const trend = detectTrend(enhancedEntry);
     const { supports, resistances } = findKeyLevels(enhancedEntry);
-    const confluences: string[] = [];
-    let signal: 'Buy' | 'Sell' | 'None' = 'None';
+    const buyConfluences: string[] = [];
+    const sellConfluences: string[] = [];
 
-    // --- Enhanced Buy Signal Logic ---
-    if (trend.includes('uptrend')) {
-        confluences.push(`Trend: ${trend.toUpperCase()}`);
-
-        // Volume Trend Confirmation
-        const recentOBV = obv_entry.slice(-5);
-        if (recentOBV[recentOBV.length - 1] > recentOBV[0]) {
-            confluences.push('Volume: Increasing OBV confirms uptrend');
-        }
-
-        // VWAP Analysis
-        if (lastCandle.close > lastCandle.vwap!) {
-            confluences.push('Institutional: Price above VWAP');
-        }
-
-        // MACD Momentum
-        if (lastCandle.macd && lastCandle.macd.histogram > 0 && 
-            lastCandle.macd.line > lastCandle.macd.signal) {
-            confluences.push('Momentum: Positive MACD crossover');
-        }
-
-        // Support Level Test
-        const nearestSupport = supports.find(s => 
-            Math.abs(lastCandle.low - s) / s < tradingConfig.priceDeviation
-        );
-        if (nearestSupport) {
-            confluences.push('Structure: Price testing support level');
-        }
-
-        // RSI Conditions
-        if (lastCandle.rsi14 > 40 && lastCandle.rsi14 < 60) {
-            confluences.push('Momentum: RSI in optimal buy zone');
-        }
-
-        // Final Buy Signal Decision
-        if (confluences.length >= tradingConfig.minConfluences && trend === 'strong_uptrend') {
-            signal = 'Buy';
-            const stopLoss = lastCandle.low - (lastCandle.atr14! * tradingConfig.atrMultiplier);
-            const riskAmount = lastCandle.close - stopLoss;
-            const takeProfit = lastCandle.close + (riskAmount * tradingConfig.riskRewardRatio);
-
-            return {
-                signal,
-                strength: Math.round((confluences.length / 6) * 100),
-                stopLoss,
-                takeProfit,
-                entryPrice: lastCandle.close,
-                confluences,
-                riskRewardRatio: tradingConfig.riskRewardRatio
-            };
-        }
+    // Analyze bullish confluences
+    if (lastCandle.close > lastCandle.vwap!) {
+        buyConfluences.push('Price above VWAP');
+    }
+    if (lastCandle.rsi14 > 40 && lastCandle.rsi14 < 65) {
+        buyConfluences.push('RSI in optimal buy zone');
+    }
+    if (lastCandle.macd && lastCandle.macd.histogram > 0) {
+        buyConfluences.push('Positive MACD momentum');
+    }
+    if (lastCandle.close > lastCandle.open) {
+        buyConfluences.push('Bullish candle');
     }
 
-    // --- Enhanced Sell Signal Logic ---
-    if (trend.includes('downtrend')) {
-        confluences.push(`Trend: ${trend.toUpperCase()}`);
-
-        // Volume Trend Confirmation
-        const recentOBV = obv_entry.slice(-5);
-        if (recentOBV[recentOBV.length - 1] < recentOBV[0]) {
-            confluences.push('Volume: Decreasing OBV confirms downtrend');
-        }
-
-        // VWAP Analysis
-        if (lastCandle.close < lastCandle.vwap!) {
-            confluences.push('Institutional: Price below VWAP');
-        }
-
-        // MACD Momentum
-        if (lastCandle.macd && lastCandle.macd.histogram < 0 && 
-            lastCandle.macd.line < lastCandle.macd.signal) {
-            confluences.push('Momentum: Negative MACD crossover');
-        }
-
-        // Resistance Level Test
-        const nearestResistance = resistances.find(r => 
-            Math.abs(lastCandle.high - r) / r < tradingConfig.priceDeviation
-        );
-        if (nearestResistance) {
-            confluences.push('Structure: Price testing resistance level');
-        }
-
-        // RSI Conditions
-        if (lastCandle.rsi14 > 60) {
-            confluences.push('Momentum: RSI in overbought zone');
-        }
-
-        // Final Sell Signal Decision
-        if (confluences.length >= tradingConfig.minConfluences && trend === 'strong_downtrend') {
-            signal = 'Sell';
-            const stopLoss = lastCandle.high + (lastCandle.atr14! * tradingConfig.atrMultiplier);
-            const riskAmount = stopLoss - lastCandle.close;
-            const takeProfit = lastCandle.close - (riskAmount * tradingConfig.riskRewardRatio);
-
-            return {
-                signal,
-                strength: Math.round((confluences.length / 6) * 100),
-                stopLoss,
-                takeProfit,
-                entryPrice: lastCandle.close,
-                confluences,
-                riskRewardRatio: tradingConfig.riskRewardRatio
-            };
-        }
+    // Analyze bearish confluences
+    if (lastCandle.close < lastCandle.vwap!) {
+        sellConfluences.push('Price below VWAP');
+    }
+    if (lastCandle.rsi14 < 60 && lastCandle.rsi14 > 35) {
+        sellConfluences.push('RSI in optimal sell zone');
+    }
+    if (lastCandle.macd && lastCandle.macd.histogram < 0) {
+        sellConfluences.push('Negative MACD momentum');
+    }
+    if (lastCandle.close < lastCandle.open) {
+        sellConfluences.push('Bearish candle');
     }
 
-    return {
-        signal: 'None',
-        strength: Math.round((confluences.length / 6) * 100),
-        confluences: confluences.length > 0 ? confluences : ['No significant setup found']
-    };
+    // Determine signal based on confluences, with None for ties
+    let signal: 'Buy' | 'Sell' | 'None';
+    let confluences: string[];
+    
+    if (buyConfluences.length > sellConfluences.length) {
+        signal = 'Buy';
+        confluences = [...buyConfluences];
+    } else if (sellConfluences.length > buyConfluences.length) {
+        signal = 'Sell';
+        confluences = [...sellConfluences];
+    } else {
+        signal = 'None';
+        confluences = [`Equal buy/sell pressure (${buyConfluences.length} confluences each)`, 
+                      'Buy signals: ' + buyConfluences.join(', '),
+                      'Sell signals: ' + sellConfluences.join(', ')];
+    }
+
+    // Calculate strength (capped at 80)
+    const strength = signal === 'None' ? 0 : Math.min(80, Math.round((confluences.length / 5) * 80));
+
+    // Calculate SL and TP based on signal
+    if (signal === 'Buy') {
+        const recentLows = entryTimeframeData.slice(-5).map(c => c.low);
+        const structuralStop = Math.min(...recentLows) - (lastCandle.atr14! * 0.5);
+        const atrStop = lastCandle.low - (lastCandle.atr14! * tradingConfig.atrMultiplier);
+        const stopLoss = Math.max(structuralStop, atrStop);
+        const riskAmount = lastCandle.close - stopLoss;
+        const takeProfit = lastCandle.close + (riskAmount * (trend === 'strong_uptrend' ? 3.2 : 2.5));
+
+        return {
+            signal,
+            strength,
+            stopLoss,
+            takeProfit,
+            entryPrice: lastCandle.close,
+            confluences,
+            riskRewardRatio: trend === 'strong_uptrend' ? 3.2 : 2.5
+        };
+    } else if (signal === 'Sell') {
+        const recentHighs = entryTimeframeData.slice(-5).map(c => c.high);
+        const structuralStop = Math.max(...recentHighs) + (lastCandle.atr14! * 0.5);
+        const atrStop = lastCandle.high + (lastCandle.atr14! * tradingConfig.atrMultiplier);
+        const stopLoss = Math.min(structuralStop, atrStop);
+        const riskAmount = stopLoss - lastCandle.close;
+        const takeProfit = lastCandle.close - (riskAmount * (trend === 'strong_downtrend' ? 3.2 : 2.5));
+
+        return {
+            signal,
+            strength,
+            stopLoss,
+            takeProfit,
+            entryPrice: lastCandle.close,
+            confluences,
+            riskRewardRatio: trend === 'strong_downtrend' ? 3.2 : 2.5
+        };
+    } else {
+        // None case - return 0 for all numerical values
+        return {
+            signal: 'None',
+            strength: 0,
+            stopLoss: 0,
+            takeProfit: 0,
+            entryPrice: 0,
+            confluences,
+            riskRewardRatio: 0
+        };
+    }
 };
 
 // Added VWAP calculation
