@@ -133,7 +133,7 @@ export const TestimonalsSections = (): JSX.Element => {
   };
 
   return (
-    <section className="py-24 flex flex-col w-full items-center relative overflow-hidden">
+    <section id="testimonals" className="py-24 flex flex-col w-full items-center relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30" />
       <div className="absolute inset-0">

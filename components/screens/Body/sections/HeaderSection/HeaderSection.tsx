@@ -84,9 +84,9 @@ export const HeaderSection = (): JSX.Element => {
 
   const navItems = [
     { label: 'Home', href: '#introduction' },
-    { label: 'Analysis', href: '/analysis' },
-    { label: 'Pricing', href: '#about-us' },
-    { label: 'About Us', href: '#testimonials' },
+    { label: 'About Us', href: '#testimonals' },
+    { label: 'Pricing', href: '#subscription-plans' },
+    { label: 'Analysis', href: '/analysis' }
   ];
 
   // Update the Sign In button in the desktop view
