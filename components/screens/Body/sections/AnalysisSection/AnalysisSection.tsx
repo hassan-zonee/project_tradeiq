@@ -191,7 +191,15 @@ export const AnalysisSection = (): JSX.Element => {
         analysis = await analyzeConfluences(selectedPair, selectedTimeframe);
     } catch (error) {
         console.error("Analysis failed:", error);
-        analysis = { signal: 'None', strength: 0, confluences: ['Error during analysis.'], entryPrice: undefined, stopLoss: undefined, takeProfit: undefined };
+        analysis = { 
+            signal: 'None', 
+            strength: 0, 
+            confluences: ['Error during analysis.'], 
+            entryPrice: 0,
+            riskRewardRatio: 0,
+            stopLoss: 0, 
+            takeProfit: 0 
+        };
     }
 
     // 3. Set the analysis results to state
