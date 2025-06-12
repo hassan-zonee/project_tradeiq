@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { User } from "firebase/auth";
 import { onAuthChange, signInWithGoogle } from "@/services/AuthService";
 import { createCheckoutSession, STRIPE_PRODUCT_IDS } from "@/services/StripeService";
+import { incrementSubscriptionClick } from "@/services/AnalyticsService";
 
 // Plan feature data
 const planFeatures = {
@@ -45,6 +46,7 @@ const plans = [
     features: planFeatures.basic,
     popular: false,
     priceId: STRIPE_PRODUCT_IDS.basic,
+    type: 'basic' as const,
   },
   {
     name: "Pro Plan",
@@ -54,6 +56,7 @@ const plans = [
     features: planFeatures.pro,
     popular: true,
     priceId: STRIPE_PRODUCT_IDS.pro,
+    type: 'pro' as const,
   },
   {
     name: "Premium Plan",
@@ -63,6 +66,7 @@ const plans = [
     features: planFeatures.premium,
     popular: false,
     priceId: STRIPE_PRODUCT_IDS.premium,
+    type: 'premium' as const,
   },
 ];
 
@@ -76,7 +80,7 @@ export const SubscriptionPlansSection = (): JSX.Element => {
     return () => unsubscribe();
   }, []);
 
-  const handleSubscribe = async (priceId: string, planIndex: number) => {
+  const handleSubscribe = async (priceId: string, planIndex: number, planType: 'basic' | 'pro' | 'premium') => {
     try {
       setIsLoading(planIndex);
       setError(null);
@@ -87,6 +91,9 @@ export const SubscriptionPlansSection = (): JSX.Element => {
         // The user state will be updated by the onAuthChange listener
         return;
       }
+
+      // Track the subscription click if user is authenticated
+      await incrementSubscriptionClick(planType);
       
       // User is logged in, proceed to checkout
       await createCheckoutSession(priceId, user.uid);
@@ -189,7 +196,7 @@ export const SubscriptionPlansSection = (): JSX.Element => {
                     ? "bg-[#3b81f5] text-white hover:bg-[#3b81f5]/90"
                     : "bg-white text-[#3b81f5] border border-[#3b81f5] hover:bg-gray-50"
                 }`}
-                onClick={() => handleSubscribe(plan.priceId, index)}
+                onClick={() => handleSubscribe(plan.priceId, index, plan.type)}
                 disabled={isLoading === index}
               >
                 {isLoading === index ? 'Processing...' : 'Get Started'}
