@@ -1,5 +1,5 @@
 import { StarIcon, ChevronLeftIcon, ChevronRightIcon, BadgeCheck, TrendingUp, Award } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Avatar,
@@ -104,7 +104,24 @@ const testimonials = [
 
 export const TestimonalsSections = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = window.innerWidth >= 1024 ? 3 : 1;
+  const [itemsPerPage, setItemsPerPage] = useState(1); // Default to mobile view
+  
+  useEffect(() => {
+    // Update items per page based on window width
+    const handleResize = () => {
+      setItemsPerPage(window.innerWidth >= 1024 ? 3 : 1);
+    };
+    
+    // Initial setup
+    handleResize();
+    
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const totalPages = Math.ceil(testimonials.length / itemsPerPage);
 
   const nextPage = () => {
