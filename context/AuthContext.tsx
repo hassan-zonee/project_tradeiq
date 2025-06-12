@@ -45,6 +45,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   useEffect(() => {
+    // Skip subscription check for secret entry route
+    if (router.pathname === '/secret-entry') {
+      setCheckingSubscription(false);
+      return;
+    }
+
     // Check subscription status when user is authenticated
     const checkUserSubscription = async () => {
       if (!user) {

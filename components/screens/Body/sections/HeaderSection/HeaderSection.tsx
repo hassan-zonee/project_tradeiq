@@ -91,14 +91,6 @@ export const HeaderSection = (): JSX.Element => {
         { label: 'Community', icon: Users, href: '/analysis' },
       ]
     },
-    {
-      label: 'Plans',
-      items: [
-        { label: 'Basic', icon: Crown, href: '#subscription-plans' },
-        { label: 'Pro', icon: Crown, href: '#subscription-plans' },
-        { label: 'Premium', icon: Crown, href: '#subscription-plans' },
-      ]
-    }
   ];
 
   // Update the Sign In button in the desktop view
