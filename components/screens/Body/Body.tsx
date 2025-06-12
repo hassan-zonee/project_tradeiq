@@ -7,6 +7,7 @@ import { IntroductionSection } from "./sections/IntroductionSection/Introduction
 import { TestimonalsSections } from "./sections/TestimonalsSections/TestimonalsSection";
 import { ClientsSection } from "./sections/ClientsSection/ClientsSection";
 import { SubscriptionPlansSection } from "./sections/SubscriptionPlansSection/SubscriptionPlansSection";
+import { AboutUsSection } from "./sections/AboutUsSection/AboutUsSection";
 
 export const Body = (): JSX.Element => {
   return (
@@ -30,19 +31,22 @@ export const Body = (): JSX.Element => {
           </motion.div>
 
           {/* Animated sections */}
-          {[ClientsSection, TestimonalsSections, SubscriptionPlansSection].map(
-            (Section, index) => (
-              <motion.div
-                key={index}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="mt-16"
-              >
-                <Section />
-              </motion.div>
-            )
-          )}
+          {[
+            ClientsSection,
+            TestimonalsSections,
+            AboutUsSection,
+            SubscriptionPlansSection
+          ].map((Section, index) => (
+            <motion.div
+              key={index}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="mt-16"
+            >
+              <Section />
+            </motion.div>
+          ))}
         </div>
       </main>
 

@@ -5,6 +5,7 @@ import { IntroductionSection } from "@/components/screens/Body/sections/Introduc
 import { TestimonalsSections } from "@/components/screens/Body/sections/TestimonalsSections/TestimonalsSection";
 import { ClientsSection } from "@/components/screens/Body/sections/ClientsSection/ClientsSection";
 import { SubscriptionPlansSection } from "@/components/screens/Body/sections/SubscriptionPlansSection/SubscriptionPlansSection";
+import { AboutUsSection } from "@/components/screens/Body/sections/AboutUsSection/AboutUsSection";
 
 // Animation variants for sections
 const pageVariants = {
@@ -105,6 +106,15 @@ export default function HomePage() {
             className="mt-16"
           >
             <TestimonalsSections />
+          </motion.div>
+
+          
+          <motion.div 
+            id="subscription-plans"
+            variants={sectionVariants}
+            className="mt-16"
+          >
+            <AboutUsSection />
           </motion.div>
 
           <motion.div 
