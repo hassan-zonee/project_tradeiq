@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, LineChart, BookOpen, Users, Crown, Home, Info } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Spinner } from "@/components/ui/spinner";
+import { useRouter } from 'next/router';
 
 export const HeaderSection = (): JSX.Element => {
   const { user, subscription, loading } = useAuth();
@@ -17,6 +18,7 @@ export const HeaderSection = (): JSX.Element => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   // Handle scroll effect
   useEffect(() => {
@@ -79,6 +81,13 @@ export const HeaderSection = (): JSX.Element => {
       console.error('Error signing out:', error);
     } finally {
       setIsSigningOut(false);
+    }
+  };
+
+  const handleNavigation = (href: string) => {
+    // If we're on the analysis page and the link is a hash link
+    if (router.pathname === '/analysis' && href.startsWith('#')) {
+      router.push(`/${href}`);
     }
   };
 
@@ -184,6 +193,7 @@ export const HeaderSection = (): JSX.Element => {
             <Link
               key={item.label}
               href={item.href}
+              onClick={() => handleNavigation(item.href)}
               className="text-gray-600 hover:text-gray-900 transition-colors relative group"
             >
               <span>{item.label}</span>
@@ -262,8 +272,11 @@ export const HeaderSection = (): JSX.Element => {
                 <Link
                   key={item.label}
                   href={item.href}
+                  onClick={() => {
+                    handleNavigation(item.href);
+                    setIsMenuOpen(false);
+                  }}
                   className="block py-2 text-gray-600 hover:text-gray-900"
-                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
