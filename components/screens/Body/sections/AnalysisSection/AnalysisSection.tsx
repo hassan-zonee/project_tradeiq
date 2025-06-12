@@ -450,24 +450,51 @@ export const AnalysisSection = (): JSX.Element => {
                         {signal}
                       </p>
                       {entryPrice && (
-                        <span className="text-xs text-gray-500 font-mono">@ {entryPrice.toFixed(5)}</span>
+                        <span className="text-xs text-gray-500 font-mono ">@ {entryPrice.toFixed(5)}</span>
                       )}
                     </div>
                     {signal && signalStrength !== null && (
-                      <div className="mt-3">
-                        <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Signal Strength</span>
-                          <span className="text-xs font-bold text-[#374050] font-mono">{signalStrength}%</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full transition-all duration-500 rounded-full ${
+                      <div className="mt-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[11px] font-bold uppercase tracking-widest text-[#374050]">Signal Strength</span>
+                          <div className="flex items-center gap-1.5">
+                            <div className={`w-2 h-2 rounded-full ${
                               signalStrength >= 70 ? 'bg-green-500' :
                               signalStrength >= 50 ? 'bg-yellow-500' :
                               'bg-red-500'
+                            }`}></div>
+                            <span className="text-[13px] font-bold text-[#374050] font-mono tabular-nums">{signalStrength}%</span>
+                          </div>
+                        </div>
+                        <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`absolute left-0 top-0 h-full transition-all duration-500 rounded-full ${
+                              signalStrength >= 70 ? 'bg-gradient-to-r from-green-500 to-green-400' :
+                              signalStrength >= 50 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+                              'bg-gradient-to-r from-red-500 to-red-400'
                             }`}
-                            style={{ width: `${signalStrength}%` }}
+                            style={{ 
+                              width: `${signalStrength}%`,
+                              boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)'
+                            }}
                           ></div>
+                          <div className="absolute inset-0 grid grid-cols-4">
+                            {[25, 50, 75].map((threshold) => (
+                              <div
+                                key={threshold}
+                                className="relative h-full"
+                                style={{ left: 'calc(100% - 1px)' }}
+                              >
+                                <div className="absolute top-0 w-px h-full bg-white/50"></div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex justify-between mt-1 text-[10px] text-gray-400 font-medium">
+                          <span>Weak</span>
+                          <span>Moderate</span>
+                          <span>Strong</span>
+                          <span>Very Strong</span>
                         </div>
                       </div>
                     )}
