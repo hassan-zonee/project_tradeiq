@@ -2,21 +2,9 @@ import '@fontsource/pacifico';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://tradeiq.site'),
-  title: {
-    default: 'TradeIQ - AI-Powered Trading Platform',
-    template: '%s | TradeIQ',
-  },
-  description: 'Transform your trading with AI-powered market intelligence',
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
-    other: {
-      rel: 'icon',
-      url: '/favicon.ico',
-    },
-  },
+  title: "TradeIQ - AI-Powered Trading Platform",
+  description: 'TradeIQ is an AI-powered trading platform that uses machine learning to analyze market data and make trading decisions.',
+
   openGraph: {
     title: 'TradeIQ - AI-Powered Trading Platform',
     description: 'Transform your trading with AI-powered market intelligence',
@@ -43,11 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body>{children}</body>
     </html>
