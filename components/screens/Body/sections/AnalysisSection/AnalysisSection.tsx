@@ -250,67 +250,71 @@ export const AnalysisSection = (): JSX.Element => {
 
   return (
     <>
-      <div id="main-content-section" className="flex flex-col lg:flex-row w-full gap-4">
+      <div id="main-content-section" className="flex flex-col lg:flex-row w-full gap-6">
       {/* Left column */}
       <div className="w-full lg:flex-[0_0_70%] lg:min-w-0">
-        <Card className="mb-6 shadow-sm">
+        <Card className="mb-6 shadow-sm rounded-xl">
           <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+            <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-4">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex flex-col">
-                  {/* Only render the label/title once, not duplicated */}
-                  <label className="text-sm font-medium text-[#374050] mb-1">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#374050] mb-1.5">
                     Currency Pair
                   </label>
                   <div className="flex flex-col relative">
-                  <input
-                    type="text"
-                    className="w-full sm:w-40 h-[42px] border border-[#d0d5da] rounded px-2"
-                    placeholder="Search pair"
-                    value={search}
-                    onChange={e => {
-                      setSearch(e.target.value);
-                      setShowSuggestions(true);
-                    }}
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                  />
-                  {showSuggestions && (
-                    <div className="absolute z-10 bg-white border border-gray-200 rounded shadow w-full sm:w-40 max-h-60 overflow-y-auto mt-11">
-                      {loadingPairs ? (
-                        <div className="px-4 py-2 text-gray-400 text-sm select-none">Loading...</div>
-                      ) : pairsError ? (
-                        <div className="px-4 py-2 text-red-500 text-sm select-none">{pairsError}</div>
-                      ) : filteredPairs.length === 0 ? (
-                        <div className="px-4 py-2 text-gray-400 text-sm select-none">No pairs found</div>
-                      ) : (
-                        filteredPairs.map((pair, idx) => (
-                          <div
-                            key={idx}
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedPair === pair.symbol ? "bg-gray-100" : ""}`}
-                            onMouseDown={() => {
-                              setSelectedPair(pair.symbol);
-                              setSearch(pair.symbol); // Show selected in input
-                              setShowSuggestions(false);
-                            }}
-                          >
-                            <span className="text-base font-semibold">{pair.symbol}</span>
-                            <br />
-                            <span className="text-xs text-gray-400">{pair.description}</span>
+                    <input
+                      type="text"
+                      className="w-full sm:w-44 h-[38px] border border-[#d0d5da] rounded-lg px-3 font-medium bg-white/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Search pair..."
+                      value={search}
+                      onChange={e => {
+                        setSearch(e.target.value);
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                    />
+                    
+                    {showSuggestions && (
+                      <div className="absolute z-10 bg-white border border-[#d0d5da] rounded-lg shadow-lg w-full sm:w-44 max-h-[280px] overflow-y-auto mt-1">
+                        {loadingPairs ? (
+                          <div className="px-4 py-3 text-gray-400 text-sm select-none flex items-center gap-2">
+                            <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            Loading...
                           </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
+                        ) : pairsError ? (
+                          <div className="px-4 py-3 text-red-500 text-sm select-none">{pairsError}</div>
+                        ) : filteredPairs.length === 0 ? (
+                          <div className="px-4 py-3 text-gray-400 text-sm select-none">No pairs found</div>
+                        ) : (
+                          filteredPairs.map((pair, idx) => (
+                            <div
+                              key={idx}
+                              className={`px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors duration-150 ${
+                                selectedPair === pair.symbol ? "bg-gray-50" : ""
+                              }`}
+                              onMouseDown={() => {
+                                setSelectedPair(pair.symbol);
+                                setSearch(pair.symbol);
+                                setShowSuggestions(false);
+                              }}
+                            >
+                              <div className="font-medium text-[#374050] tracking-wide">{pair.symbol}</div>
+                              <div className="text-xs text-gray-400 mt-0.5">{pair.description}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-sm font-medium text-[#374050] mb-1">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#374050] mb-1.5">
                     Timeframe
                   </label>
                   <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                    <SelectTrigger className="w-full sm:w-28 h-[42px] border-[#d0d5da]">
+                    <SelectTrigger className="w-full sm:w-32 h-[38px] border-[#d0d5da] rounded-lg font-medium bg-white/50">
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
@@ -323,106 +327,143 @@ export const AnalysisSection = (): JSX.Element => {
                 </div>
               </div>
 
-              <div className="flex flex-col min-w-[180px]">
-                <div className="flex items-center">
-                  <span className="font-bold text-gray-800 text-2xl mr-2">
+              <div className="flex flex-col min-w-[160px] bg-gray-50/80 rounded-lg p-3 border border-[#d0d5da]">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[#374050] text-xl tracking-tight font-mono">
                     {currentPriceDisplay}
                   </span>
                   <Badge
                     variant="outline"
-                    className={`font-medium px-2 py-1 rounded-lg ${ 
-                      priceChangeDirection === 'up' ? 'bg-green-100 text-green-700' : 
-                      priceChangeDirection === 'down' ? 'bg-red-100 text-red-700' : 
-                      'bg-gray-100 text-gray-700'
+                    className={`font-medium px-2 py-0.5 text-[11px] rounded ${
+                      priceChangeDirection === 'up' ? 'bg-green-50 text-green-700 border-green-200' :
+                      priceChangeDirection === 'down' ? 'bg-red-50 text-red-700 border-red-200' :
+                      'bg-gray-100 text-gray-700 border-gray-200'
                     }`}
                   >
                     {priceChangeDisplay}
                   </Badge>
                 </div>
-                <span className="text-[#6a7280] text-sm truncate">
-                  {selectedPair || "N/A"} • {lastUpdateTimestampDisplay}
-                </span>
+                <div className="flex items-center text-xs text-gray-500 mt-1.5">
+                  <span className="font-medium font-mono">{selectedPair || "N/A"}</span>
+                  <span className="mx-1.5 text-gray-300">•</span>
+                  <span className="text-gray-400">{lastUpdateTimestampDisplay}</span>
+                </div>
               </div>
             </div>
 
-            <Separator className="bg-[#f2f4f5]" />
+            <Separator className="bg-[#f2f4f5] mb-4" />
 
             <div className="relative">
               {isAnalysisLoading && (
                 <div 
-                  className="absolute inset-0 bg-white bg-opacity-20 flex flex-col items-center justify-center z-10 rounded-2xl"
-                  style={{ backdropFilter: 'blur(3px)' }}
+                  className="absolute inset-0 bg-white/90 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 rounded-xl"
                 >
-                  <svg className="animate-spin h-10 w-10 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span className="text-lg font-semibold text-gray-700">Loading Analysis...</span>
-                  <span className="text-sm text-gray-500">Please wait a moment.</span>
+                  <div className="flex items-center space-x-1.5 mb-3">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
+                  </div>
+                  <span className="text-base font-semibold text-[#374050]">Analyzing Market Data...</span>
+                  <span className="text-xs text-gray-500 mt-1">This may take a moment</span>
                 </div>
               )}
-              <div className="rounded-2xl overflow-hidden h-[400px] mb-2 h-g flex items-center justify-center">
+              <div className="h-[450px] w-full bg-[#f8fafc] rounded-xl overflow-hidden border border-[#d0d5da]">
                 {chartLoading ? (
-                  <span className="text-gray-500">Loading chart data...</span>
+                  <div className="h-full flex flex-col items-center justify-center gap-2">
+                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-gray-500 text-sm">Loading chart data...</span>
+                  </div>
                 ) : chartError ? (
-                  <span className="text-red-500">{chartError}</span>
+                  <div className="h-full flex flex-col items-center justify-center gap-2">
+                    <span className="text-red-500 text-sm">{chartError}</span>
+                    <button 
+                      onClick={() => {/* Add retry function */}} 
+                      className="text-xs text-blue-500 hover:text-blue-600"
+                    >
+                      Try again
+                    </button>
+                  </div>
                 ) : chartData.length === 0 ? (
-                  <span className="text-gray-500">No data</span>
+                  <div className="h-full flex flex-col items-center justify-center gap-1.5">
+                    <span className="text-gray-500 text-sm">No data available</span>
+                    <span className="text-xs text-gray-400">Try selecting a different timeframe</span>
+                  </div>
                 ) : (
-                                    <CandleChart data={chartData} showIndicators={showIndicators} visibleIndicators={visibleIndicators} keyLevels={keyLevels} />
+                  <CandleChart 
+                    data={chartData} 
+                    showIndicators={showIndicators} 
+                    visibleIndicators={visibleIndicators} 
+                    keyLevels={keyLevels} 
+                  />
                 )}
               </div>
             </div>
-            {/* The relative div for overlay should close here if it was meant to only cover the chart area */}
-            {/* If the overlay was meant to cover more, adjust its position in the JSX tree */}
           </CardContent>
         </Card>
       </div>
-      {/* Right column (Analysis, Signals, etc.) */}
-      <div className="w-full lg:flex-[0_0_30%] lg:min-w-0 space-y-6">
-        {/* AI Analysis Card with Inner Cards */}
-        <Card className="shadow-sm">
-          <CardContent className="p-6 space-y-6">
-            {/* Header Row */}
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-              <h3 className="font-semibold text-gray-800 text-xl">AI Analysis</h3>
+      {/* Right column */}
+      <div className="w-full lg:flex-[0_0_30%] lg:min-w-0">
+        <Card className="shadow-sm rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-base font-semibold text-[#374050] uppercase tracking-wide">AI Analysis</h3>
               <Button 
                 onClick={handleAnalyzeClick} 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-[42px] px-6 rounded-md shadow-md transition duration-150 ease-in-out transform hover:scale-105 active:scale-95"
+                disabled={isAnalysisLoading}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium h-[38px] px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
               >
-                <img
-                  className="w-3 h-3.5 mr-2"
-                  alt="AI icon"
-                  src="/group-16.png"
-                />
-                Analyze
+                {isAnalysisLoading ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Analyzing</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 4V2M12 22v-2M6.34 6.34L4.93 4.93M19.07 19.07l-1.41-1.41M4 12H2M22 12h-2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" 
+                        stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                    <span>Analyze</span>
+                  </>
+                )}
               </Button>
             </div>
 
-            {/* Sections: Signal, Stoploss, Take Profit */}
-            <div className="flex flex-col gap-4">
-              {/* Signal */}
-              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-800 text-lg mb-1">Signal</h4>
-                                {isAnalysisLoading ? (
-                  <div className="h-5 w-3/4 bg-gray-300 rounded animate-pulse mt-1"></div>
-                 ) : (
-                   <>
-                     <p className={`font-semibold text-lg ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}`}>
-                       {signal}
-                       {entryPrice && (
-                         <span className="text-xs ${signal === 'Buy' ? 'text-green-500' : signal === 'Sell' ? 'text-red-500' : 'text-gray-600'}` ml-2">({entryPrice.toFixed(5)})</span>
-                       )}
-                     </p>
+            <div className="space-y-4">
+              <div className="bg-gray-50/80 border border-[#d0d5da] rounded-lg p-4">
+                <h4 className="text-sm font-bold text-[#374050] uppercase tracking-wide mb-3">Signal</h4>
+                {isAnalysisLoading ? (
+                  <div className="space-y-2">
+                    <div className="h-5 w-20 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <p className={`font-semibold text-lg font-mono ${
+                        signal === 'Buy' ? 'text-green-500' :
+                        signal === 'Sell' ? 'text-red-500' :
+                        'text-gray-600'
+                      }`}>
+                        {signal}
+                      </p>
+                      {entryPrice && (
+                        <span className="text-xs text-gray-500 font-mono">@ {entryPrice.toFixed(5)}</span>
+                      )}
+                    </div>
                     {signal && signalStrength !== null && (
-                      <div className="mt-4">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-sm font-medium text-gray-500">Signal Strength</span>
-                          <span className="text-sm font-bold text-gray-800">{signalStrength}%</span>
+                      <div className="mt-3">
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Signal Strength</span>
+                          <span className="text-xs font-bold text-[#374050] font-mono">{signalStrength}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                           <div 
-                            className={`h-2 rounded-full ${getStrengthColor(signalStrength)}`}
+                            className={`h-full transition-all duration-500 rounded-full ${
+                              signalStrength >= 70 ? 'bg-green-500' :
+                              signalStrength >= 50 ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }`}
                             style={{ width: `${signalStrength}%` }}
                           ></div>
                         </div>
@@ -432,49 +473,48 @@ export const AnalysisSection = (): JSX.Element => {
                 )}
               </div>
 
-              {/* Stoploss */}
-              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-800 text-lg mb-1">Stop Loss</h4>
-                {isAnalysisLoading ? (
-                  <div className="h-5 w-1/2 bg-gray-300 rounded animate-pulse mt-1"></div>
-                ) : (
-                  <p className="text-red-500 font-bold">{stopLoss || 'N/A'}</p>
-                )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50/80 border border-[#d0d5da] rounded-lg p-4">
+                  <h4 className="text-sm font-bold text-[#374050] uppercase tracking-wide mb-3">SL</h4>
+                  {isAnalysisLoading ? (
+                    <div className="h-5 w-16 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    <p className="text-red-500 text-sm font-bold text-lg">{stopLoss || 'N/A'}</p>
+                  )}
+                </div>
+
+                <div className="bg-gray-50 border border-[#d0d5da] rounded-lg p-4">
+                  <h4 className="text-sm font-bold text-[#374050] mb-3">TP</h4>
+                  {isAnalysisLoading ? (
+                    <div className="h-6 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    <p className="text-green-500 text-sm font-bold text-lg">{takeProfit || 'N/A'}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Take Profit */}
-              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-800 text-lg mb-1">Take Profit</h4>
+              <div className="bg-gray-50 border border-[#d0d5da] rounded-lg p-4">
+                <h4 className="text-sm font-bold text-[#374050] mb-3">Analysis</h4>
                 {isAnalysisLoading ? (
-                  <div className="h-5 w-1/2 bg-gray-300 rounded animate-pulse mt-1"></div>
-                ) : (
-                  <p className="text-green-600 font-bold">{takeProfit || 'N/A'}</p>
-                )}
-              </div>
-
-              {/* Analysis */}
-              <div className="flex-1 bg-gray-50 border rounded-md p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-800 text-lg mb-1">Analysis</h4>
-                {isAnalysisLoading ? (
-                  <div className="h-5 w-1/2 bg-gray-300 rounded animate-pulse mt-1"></div>
-                ) : (
-                  <div>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {confluences.map((reason, index) => (
-                        <li key={index} className="text-sm text-gray-400">
-                          {reason}
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse"></div>
                   </div>
+                ) : (
+                  <ul className="list-disc pl-5 space-y-2">
+                    {confluences.map((reason, index) => (
+                      <li key={index} className="text-gray-600 text-sm leading-relaxed">
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-
     </div>
     </>
   );
