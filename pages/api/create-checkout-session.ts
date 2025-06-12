@@ -1,10 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 
-const api = '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';
-const stripe = new Stripe(api, {
-  // @ts-ignore - Ignoring API version mismatch
-  apiVersion: '2023-08-16', // Using a supported API version
+// Initialize Stripe with the secret key from environment variable
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2025-05-28.basil',
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

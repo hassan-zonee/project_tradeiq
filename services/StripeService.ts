@@ -1,14 +1,13 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Load the Stripe public key
-const productkey = 'pk_live_51RYoWED1jXtJkztdnFrtkogwUk0yECGaJXYZNp45GuRajasaX2sp7BpahImMgDmvmDKbgrm8OKjEAIBEOLFr5VLj005d0UTRi1';
-const stripePromise = loadStripe(productkey);
+// Load the Stripe public key from environment variable
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 // Product IDs for each plan from your Stripe dashboard
 export const STRIPE_PRODUCT_IDS = {
-  basic: 'price_1RYq5BD1jXtJkztdbn1KdoFZ', // Replace with your actual price ID for Basic plan
-  pro: 'price_1RYqHhD1jXtJkztdfm72Cdnr',     // Replace with your actual price ID for Pro plan
-  premium: 'price_1RYqIQD1jXtJkztd3xITcOgS' // Replace with your actual price ID for Premium plan
+  basic: process.env.NEXT_PUBLIC_STRIPE_BASIC_PRICE_ID || '', // Basic plan price ID
+  pro: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID || '',     // Pro plan price ID
+  premium: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID || '' // Premium plan price ID
 };
 
 export const createCheckoutSession = async (priceId: string, userId: string) => {
