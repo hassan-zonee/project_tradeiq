@@ -147,7 +147,7 @@ export const HeaderSection = (): JSX.Element => {
 
   return (
     <header 
-      className={`w-full h-[66px] sticky top-0 z-50 transition-all duration-300 ${
+      className={`w-full h-[66px] z-50 transition-all duration-300 ${
         isScrolled ? 'glass shadow-lg' : 'bg-transparent'
       }`}
     >

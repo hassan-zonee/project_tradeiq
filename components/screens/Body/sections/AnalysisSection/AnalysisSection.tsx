@@ -258,14 +258,14 @@ export const AnalysisSection = (): JSX.Element => {
             <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-4">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex flex-col">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#374050] mb-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-[#374050] mb-1.5">
                     Currency Pair
                   </label>
                   <div className="flex items-center gap-1.5">
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-[130px] h-[32px] border border-[#d0d5da] rounded-lg px-2.5 font-medium bg-white/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[13px]"
+                        className="w-[130px] h-[32px] border border-[#d0d5da] rounded-lg px-2.5 font-medium bg-white/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[13px] font-mono"
                         placeholder="Search pair..."
                         value={search}
                         onChange={e => {
@@ -301,7 +301,7 @@ export const AnalysisSection = (): JSX.Element => {
                                 }}
                               >
                                 <div className="font-medium text-[13px] text-[#374050] tracking-wide font-mono">{pair.symbol}</div>
-                                <div className="text-[11px] text-gray-400 mt-0.5">{pair.description}</div>
+                                <div className="text-[11px] text-gray-400 mt-0.5 font-normal">{pair.description}</div>
                               </div>
                             ))
                           )}
@@ -312,18 +312,18 @@ export const AnalysisSection = (): JSX.Element => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#374050] mb-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-[#374050] mb-1.5">
                     Timeframe
                   </label>
                   <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                    <SelectTrigger className="w-[90px] h-[32px] border-[#d0d5da] rounded-lg font-medium bg-white/50 text-[13px]">
+                    <SelectTrigger className="w-[90px] h-[32px] border-[#d0d5da] rounded-lg font-medium bg-white/50 text-[13px] font-mono">
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="15m">15m</SelectItem>
-                      <SelectItem value="30m">30m</SelectItem>
-                      <SelectItem value="1h">1h</SelectItem>
-                      <SelectItem value="4h">4h</SelectItem>
+                      <SelectItem value="15m" className="font-mono">15m</SelectItem>
+                      <SelectItem value="30m" className="font-mono">30m</SelectItem>
+                      <SelectItem value="1h" className="font-mono">1h</SelectItem>
+                      <SelectItem value="4h" className="font-mono">4h</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -331,12 +331,12 @@ export const AnalysisSection = (): JSX.Element => {
 
               <div className="flex flex-col min-w-[140px] bg-gray-50/80 rounded-lg p-2.5 border border-[#d0d5da]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-bold text-[#374050] text-lg tracking-tight font-mono leading-none">
+                  <span className="font-bold text-[#374050] text-lg tracking-tight font-mono leading-none tabular-nums">
                     {currentPriceDisplay}
                   </span>
                   <Badge
                     variant="outline"
-                    className={`font-medium px-1.5 py-0.5 text-[10px] rounded ${
+                    className={`font-medium px-1.5 py-0.5 text-[10px] rounded font-mono tabular-nums ${
                       priceChangeDirection === 'up' ? 'bg-green-50 text-green-700 border-green-200' :
                       priceChangeDirection === 'down' ? 'bg-red-50 text-red-700 border-red-200' :
                       'bg-gray-100 text-gray-700 border-gray-200'
@@ -348,7 +348,7 @@ export const AnalysisSection = (): JSX.Element => {
                 <div className="flex items-center text-[10px] text-gray-500 mt-1">
                   <span className="font-medium font-mono">{selectedPair || "N/A"}</span>
                   <span className="mx-1 text-gray-300">•</span>
-                  <span className="text-gray-400 truncate">{lastUpdateTimestampDisplay}</span>
+                  <span className="text-gray-400 truncate font-normal">{lastUpdateTimestampDisplay}</span>
                 </div>
               </div>
             </div>
@@ -365,22 +365,22 @@ export const AnalysisSection = (): JSX.Element => {
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
                   </div>
-                  <span className="text-base font-semibold text-[#374050]">Analyzing Market Data...</span>
-                  <span className="text-xs text-gray-500 mt-1">This may take a moment</span>
+                  <span className="text-base font-semibold text-[#374050] tracking-wide">Analyzing Market Data...</span>
+                  <span className="text-xs text-gray-500 mt-1 font-normal">This may take a moment</span>
                 </div>
               )}
               <div className="h-[450px] w-full bg-[#f8fafc] rounded-xl overflow-hidden border border-[#d0d5da]">
                 {chartLoading ? (
                   <div className="h-full flex flex-col items-center justify-center gap-2">
                     <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-gray-500 text-sm">Loading chart data...</span>
+                    <span className="text-gray-500 text-[13px] font-normal">Loading chart data...</span>
                   </div>
                 ) : chartError ? (
                   <div className="h-full flex flex-col items-center justify-center gap-2">
-                    <span className="text-red-500 text-sm">{chartError}</span>
+                    <span className="text-red-500 text-[13px] font-normal">{chartError}</span>
                     <button 
                       onClick={() => {/* Add retry function */}} 
-                      className="text-xs text-blue-500 hover:text-blue-600"
+                      className="text-xs text-blue-500 hover:text-blue-600 font-medium"
                     >
                       Try again
                     </button>
