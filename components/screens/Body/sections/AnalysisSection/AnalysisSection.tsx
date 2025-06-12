@@ -261,51 +261,53 @@ export const AnalysisSection = (): JSX.Element => {
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#374050] mb-1.5">
                     Currency Pair
                   </label>
-                  <div className="flex flex-col relative">
-                    <input
-                      type="text"
-                      className="w-full sm:w-44 h-[38px] border border-[#d0d5da] rounded-lg px-3 font-medium bg-white/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Search pair..."
-                      value={search}
-                      onChange={e => {
-                        setSearch(e.target.value);
-                        setShowSuggestions(true);
-                      }}
-                      onFocus={() => setShowSuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                    />
-                    
-                    {showSuggestions && (
-                      <div className="absolute z-10 bg-white border border-[#d0d5da] rounded-lg shadow-lg w-full sm:w-44 max-h-[280px] overflow-y-auto mt-1">
-                        {loadingPairs ? (
-                          <div className="px-4 py-3 text-gray-400 text-sm select-none flex items-center gap-2">
-                            <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                            Loading...
-                          </div>
-                        ) : pairsError ? (
-                          <div className="px-4 py-3 text-red-500 text-sm select-none">{pairsError}</div>
-                        ) : filteredPairs.length === 0 ? (
-                          <div className="px-4 py-3 text-gray-400 text-sm select-none">No pairs found</div>
-                        ) : (
-                          filteredPairs.map((pair, idx) => (
-                            <div
-                              key={idx}
-                              className={`px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors duration-150 ${
-                                selectedPair === pair.symbol ? "bg-gray-50" : ""
-                              }`}
-                              onMouseDown={() => {
-                                setSelectedPair(pair.symbol);
-                                setSearch(pair.symbol);
-                                setShowSuggestions(false);
-                              }}
-                            >
-                              <div className="font-medium text-[#374050] tracking-wide">{pair.symbol}</div>
-                              <div className="text-xs text-gray-400 mt-0.5">{pair.description}</div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-[130px] h-[32px] border border-[#d0d5da] rounded-lg px-2.5 font-medium bg-white/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-[13px]"
+                        placeholder="Search pair..."
+                        value={search}
+                        onChange={e => {
+                          setSearch(e.target.value);
+                          setShowSuggestions(true);
+                        }}
+                        onFocus={() => setShowSuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                      />
+                      
+                      {showSuggestions && (
+                        <div className="absolute z-10 bg-white border border-[#d0d5da] rounded-lg shadow-lg w-[130px] max-h-[260px] overflow-y-auto mt-1">
+                          {loadingPairs ? (
+                            <div className="px-3 py-2.5 text-gray-400 text-[13px] select-none flex items-center gap-2">
+                              <div className="w-2.5 h-2.5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                              Loading...
                             </div>
-                          ))
-                        )}
-                      </div>
-                    )}
+                          ) : pairsError ? (
+                            <div className="px-3 py-2.5 text-red-500 text-[13px] select-none">{pairsError}</div>
+                          ) : filteredPairs.length === 0 ? (
+                            <div className="px-3 py-2.5 text-gray-400 text-[13px] select-none">No pairs found</div>
+                          ) : (
+                            filteredPairs.map((pair, idx) => (
+                              <div
+                                key={idx}
+                                className={`px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors duration-150 ${
+                                  selectedPair === pair.symbol ? "bg-gray-50" : ""
+                                }`}
+                                onMouseDown={() => {
+                                  setSelectedPair(pair.symbol);
+                                  setSearch(pair.symbol);
+                                  setShowSuggestions(false);
+                                }}
+                              >
+                                <div className="font-medium text-[13px] text-[#374050] tracking-wide font-mono">{pair.symbol}</div>
+                                <div className="text-[11px] text-gray-400 mt-0.5">{pair.description}</div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -314,7 +316,7 @@ export const AnalysisSection = (): JSX.Element => {
                     Timeframe
                   </label>
                   <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                    <SelectTrigger className="w-full sm:w-32 h-[38px] border-[#d0d5da] rounded-lg font-medium bg-white/50">
+                    <SelectTrigger className="w-[90px] h-[32px] border-[#d0d5da] rounded-lg font-medium bg-white/50 text-[13px]">
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
@@ -327,14 +329,14 @@ export const AnalysisSection = (): JSX.Element => {
                 </div>
               </div>
 
-              <div className="flex flex-col min-w-[160px] bg-gray-50/80 rounded-lg p-3 border border-[#d0d5da]">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#374050] text-xl tracking-tight font-mono">
+              <div className="flex flex-col min-w-[140px] bg-gray-50/80 rounded-lg p-2.5 border border-[#d0d5da]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-[#374050] text-lg tracking-tight font-mono leading-none">
                     {currentPriceDisplay}
                   </span>
                   <Badge
                     variant="outline"
-                    className={`font-medium px-2 py-0.5 text-[11px] rounded ${
+                    className={`font-medium px-1.5 py-0.5 text-[10px] rounded ${
                       priceChangeDirection === 'up' ? 'bg-green-50 text-green-700 border-green-200' :
                       priceChangeDirection === 'down' ? 'bg-red-50 text-red-700 border-red-200' :
                       'bg-gray-100 text-gray-700 border-gray-200'
@@ -343,10 +345,10 @@ export const AnalysisSection = (): JSX.Element => {
                     {priceChangeDisplay}
                   </Badge>
                 </div>
-                <div className="flex items-center text-xs text-gray-500 mt-1.5">
+                <div className="flex items-center text-[10px] text-gray-500 mt-1">
                   <span className="font-medium font-mono">{selectedPair || "N/A"}</span>
-                  <span className="mx-1.5 text-gray-300">•</span>
-                  <span className="text-gray-400">{lastUpdateTimestampDisplay}</span>
+                  <span className="mx-1 text-gray-300">•</span>
+                  <span className="text-gray-400 truncate">{lastUpdateTimestampDisplay}</span>
                 </div>
               </div>
             </div>
