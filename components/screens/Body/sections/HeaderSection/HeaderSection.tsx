@@ -83,7 +83,6 @@ export const HeaderSection = (): JSX.Element => {
   };
 
   const navItems = [
-    { label: 'Home', href: '#introduction' },
     { label: 'About Us', href: '#testimonals' },
     { label: 'Pricing', href: '#subscription-plans' },
     { label: 'Analysis', href: '/analysis' }
