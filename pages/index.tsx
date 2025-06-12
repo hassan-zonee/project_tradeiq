@@ -110,7 +110,7 @@ export default function HomePage() {
 
           
           <motion.div 
-            id="subscription-plans"
+            id="about-us"
             variants={sectionVariants}
             className="mt-16"
           >
