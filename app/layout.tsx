@@ -1,9 +1,16 @@
+'use client';
+
 import '@fontsource/pacifico';
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "TradeIQ",
-  description: 'TradeIQ is an AI-powered trading platform that uses machine learning to analyze market data and make trading decisions.',
+  title: {
+    absolute: 'TradeIQ',
+  },
+  description: 'TradeIQ is an AI-powered trading platform',
+  icons: {
+    icon: '/favicon.ico',
+  },
 
   openGraph: {
     title: 'TradeIQ - AI-Powered Trading Platform',
@@ -30,11 +37,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <title>TradeIQ</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </head>
       <body>{children}</body>
     </html>
   );
