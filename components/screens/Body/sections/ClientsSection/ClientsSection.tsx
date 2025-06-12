@@ -1,63 +1,128 @@
 import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 
 export const ClientsSection = (): JSX.Element => {
-  // Company logos data for easy mapping
+  // Company logos data with additional information
   const companyLogos = [
-    { id: 1, logo: "/img-70.png", name: "Company logo 1" },
-    { id: 2, logo: "/img-72.png", name: "Company logo 2" },
-    { id: 3, logo: "/img-74.png", name: "Company logo 3" },
-    { id: 4, logo: "/img-76.png", name: "Company logo 4" },
+    { 
+      id: 1, 
+      logo: "/img-70.png", 
+      name: "Financial Congm",
+      description: "Investment Banking"
+    },
+    { 
+      id: 2, 
+      logo: "/img-72.png", 
+      name: "Investment Fin",
+      description: "Financial Services"
+    },
+    { 
+      id: 3, 
+      logo: "/img-74.png", 
+      name: "Pading Coalin",
+      description: "Global Banking"
+    },
+    { 
+      id: 4, 
+      logo: "/img-76.png", 
+      name: "Fintech",
+      description: "Investment Management"
+    },
   ];
 
-  // Animation variants for the container and items
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
         staggerChildren: 0.2,
+        delayChildren: 0.3,
       },
     },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
   };
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <motion.h2
-          className="text-3xl font-bold text-center mb-12 text-gray-800"
+    <section className="py-16 relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-white pointer-events-none" />
+      
+      <div className="container mx-auto px-4 relative">
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          Trusted by Industry Leaders
-        </motion.h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            Trusted by Leading Financial Institutions
+          </h2>
+          <p className="text-sm text-gray-600 max-w-2xl mx-auto">
+            Join the world's top financial institutions in leveraging our AI-powered trading intelligence platform
+          </p>
+        </motion.div>
+
         <motion.div
-          className="flex flex-wrap justify-center sm:justify-around items-center gap-8 sm:gap-12"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto"
         >
           {companyLogos.map((client) => (
             <motion.div
               key={client.id}
-              className="flex items-center justify-center h-12 w-1/2 sm:w-1/3 md:w-1/4 lg:w-auto px-4"
               variants={itemVariants}
-              whileHover={{ scale: 1.1 }}
+              className="relative group"
             >
-              <img
-                src={client.logo}
-                alt={client.name}
-                className="max-h-full max-w-full object-contain"
-              />
+              <Card className="p-4 h-full bg-white/70 backdrop-blur-sm border border-gray-100 hover:border-blue-100 transition-colors duration-300">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="relative w-full h-16 flex items-center justify-center">
+                    <motion.img
+                      src={client.logo}
+                      alt={client.name}
+                      className="max-h-full max-w-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xs text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+                      {client.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {client.description}
+                    </p>
+                  </div>
+                </div>
+              </Card>
             </motion.div>
           ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-12 text-center"
+        >
+          <p className="text-xs text-gray-600">
+            And many more leading financial institutions worldwide
+          </p>
         </motion.div>
       </div>
     </section>
