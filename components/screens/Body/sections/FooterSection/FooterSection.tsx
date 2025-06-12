@@ -8,12 +8,6 @@ export const FooterSection = (): JSX.Element => {
     "your investment objectives, level of experience, and risk appetite.",
   ];
 
-  const footerLinks = [
-    { name: "Terms", href: "#" },
-    { name: "Privacy", href: "#" },
-    { name: "Support", href: "#" },
-  ];
-
   return (
     <footer className="w-full bg-gradient-to-b from-gray-900 to-gray-800 py-12">
       <motion.div 
@@ -37,25 +31,7 @@ export const FooterSection = (): JSX.Element => {
             </span>
           </motion.div>
 
-          {/* Links */}
-          <motion.div 
-            className="flex gap-8"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            {footerLinks.map((link, index) => (
-              <a
-                key={index}
-                href={link.href}
-                className="text-gray-400 hover:text-white transition-colors duration-200"
-              >
-                {link.name}
-              </a>
-            ))}
-          </motion.div>
-
+          
           {/* Disclaimer */}
           <motion.div 
             className="max-w-4xl text-center"
