@@ -214,7 +214,16 @@ export const HeaderSection = (): JSX.Element => {
             </motion.div>
           )}
           
-          {user ? <SignOutButton /> : <SignInButton />}
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-700 text-sm">
+                {user.displayName || 'User'}
+              </span>
+              <SignOutButton />
+            </div>
+          ) : (
+            <SignInButton />
+          )}
         </motion.div>
 
         {/* Mobile Menu Button */}
@@ -242,6 +251,13 @@ export const HeaderSection = (): JSX.Element => {
             className="md:hidden glass"
           >
             <div className="px-4 py-2 space-y-2">
+              {user && (
+                <div className="py-2 px-1 border-b border-gray-200 mb-2">
+                  <span className="text-gray-700 text-sm">
+                    Signed in as {user.displayName || 'User'}
+                  </span>
+                </div>
+              )}
               {navItems.map((item) => (
                 <Link
                   key={item.label}
