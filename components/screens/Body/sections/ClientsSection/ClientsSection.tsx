@@ -8,25 +8,29 @@ export const ClientsSection = (): JSX.Element => {
       id: 1, 
       logo: "/img-70.png", 
       name: "Financial Congm",
-      description: "Investment Banking"
+      description: "Investment Banking",
+      stat: "10+ years partnership"
     },
     { 
       id: 2, 
       logo: "/img-72.png", 
       name: "Investment Fin",
-      description: "Financial Services"
+      description: "Financial Services",
+      stat: "$2B+ managed assets"
     },
     { 
       id: 3, 
       logo: "/img-74.png", 
       name: "Pading Coalin",
-      description: "Global Banking"
+      description: "Global Banking",
+      stat: "30+ countries served"
     },
     { 
       id: 4, 
       logo: "/img-76.png", 
       name: "Fintech",
-      description: "Investment Management"
+      description: "Investment Management",
+      stat: "500K+ transactions"
     },
   ];
 
@@ -67,11 +71,22 @@ export const ClientsSection = (): JSX.Element => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
+          <motion.div 
+            className="inline-block mb-4"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-shadow">
+              Our Partners
+            </div>
+          </motion.div>
           <h2 className="text-2xl font-bold text-gray-800 mb-3">
-            Trusted by Leading Financial Institutions
+            Empowering Global Financial Leaders
           </h2>
           <p className="text-sm text-gray-600 max-w-2xl mx-auto">
-            Join the world's top financial institutions in leveraging our AI-powered trading intelligence platform
+            Join the world's top financial institutions leveraging our AI-powered trading intelligence platform for unprecedented market insights
           </p>
         </motion.div>
 
@@ -106,6 +121,9 @@ export const ClientsSection = (): JSX.Element => {
                     <p className="text-xs text-gray-500 mt-0.5">
                       {client.description}
                     </p>
+                    <div className="mt-2 text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full inline-block">
+                      {client.stat}
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -121,7 +139,7 @@ export const ClientsSection = (): JSX.Element => {
           className="mt-12 text-center"
         >
           <p className="text-xs text-gray-600">
-            And many more leading financial institutions worldwide
+            Trusted by leading financial institutions across 6 continents
           </p>
         </motion.div>
       </div>

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { signInWithGoogle } from "@/services/AuthService";
 import { useAuth } from "@/context/AuthContext";
+import { TrendingUp, Users, Globe, Award } from 'lucide-react';
 
 export const IntroductionSection = (): JSX.Element => {
   const { user, subscription } = useAuth();
@@ -35,9 +36,34 @@ export const IntroductionSection = (): JSX.Element => {
 
   // Stats data for mapping
   const stats = [
-    { value: "91%", label: "Accuracy Rate" },
-    { value: "50K+", label: "Active Traders" },
-    { value: "24/7", label: "Market Analysis" },
+    {
+      icon: TrendingUp,
+      value: "95%",
+      label: "Success Rate",
+      description: "Trading accuracy",
+      gradient: "from-blue-500 to-indigo-500"
+    },
+    {
+      icon: Users,
+      value: "50K+",
+      label: "Active Users",
+      description: "Growing community",
+      gradient: "from-indigo-500 to-purple-500"
+    },
+    {
+      icon: Globe,
+      value: "100+",
+      label: "Countries",
+      description: "Global presence",
+      gradient: "from-purple-500 to-pink-500"
+    },
+    {
+      icon: Award,
+      value: "15+",
+      label: "Awards",
+      description: "Industry recognition",
+      gradient: "from-pink-500 to-blue-500"
+    }
   ];
 
   // User images for the overlay card
@@ -58,7 +84,7 @@ export const IntroductionSection = (): JSX.Element => {
       </div>
 
       <div className="px-12 max-w-6xl w-full relative">
-        <div className="flex flex-wrap gap-12 items-center">
+        <div className="flex flex-wrap gap-12">
           {/* Left Column - Text Content */}
           <motion.div 
             className="flex flex-col w-full lg:w-[calc(50%-24px)]"
@@ -133,46 +159,14 @@ export const IntroductionSection = (): JSX.Element => {
                 />
               </motion.button>
             </motion.div>
-
-            <motion.div 
-              className="pt-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-            >
-              <div className="flex flex-wrap gap-5 justify-center">
-                {stats.map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
-                    whileHover={{ y: -5, boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
-                    className="relative group"
-                  >
-                    <Card className="bg-white rounded-2xl shadow-lg px-6 py-4 flex flex-col items-center w-full sm:min-w-[100px] sm:w-auto h-full relative overflow-hidden">
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      />
-                      <span className="font-bold text-xl text-[#3b81f5] font-['Roboto',Helvetica] mb-1 relative z-10">
-                        {stat.value}
-                      </span>
-                      <span className="text-sm text-[#4a5462] font-['Roboto',Helvetica] font-medium relative z-10">
-                        {stat.label}
-                      </span>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
           </motion.div>
 
           {/* Right Column - Image with overlay card */}
           <motion.div 
-            className="w-full lg:w-[calc(50%-24px)]"
+            className="w-full lg:w-[calc(50%-24px)] lg:mt-12"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5 }}
           >
             <div className="relative">
               <motion.div
@@ -187,12 +181,15 @@ export const IntroductionSection = (): JSX.Element => {
                   repeatType: "reverse",
                 }}
               />
-              <img
-                className="w-full h-auto object-cover rounded-xl lg:-mt-20 relative"
-                alt="Trading dashboard visualization"
+              <motion.img
                 src="/img-58.png"
+                alt="Trading Platform Interface"
+                className="w-full h-auto rounded-xl relative"
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5 }}
               />
-              {/* Overlay Card */}
+              
               <Card className="flex flex-col w-[calc(100%-2rem)] sm:w-80 absolute -bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-6 lg:-right-6 shadow-[0px_10px_25px_-5px_rgba(0,0,0,0.1)] rounded-2xl overflow-hidden z-10 bg-white/95 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center">
@@ -224,6 +221,42 @@ export const IntroductionSection = (): JSX.Element => {
             </div>
           </motion.div>
         </div>
+
+        {/* Stats Grid - Now below both columns */}
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+              whileHover={{ y: -3 }}
+              className="relative group"
+            >
+              <Card className="p-3 bg-white/70 backdrop-blur-sm border border-gray-100 hover:border-blue-100 transition-all duration-300">
+                <div className="flex flex-col items-center text-center">
+                  <div className={`p-1.5 rounded-lg bg-gradient-to-r ${stat.gradient} mb-2`}>
+                    <stat.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="font-bold text-lg bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {stat.value}
+                  </div>
+                  <div className="text-xs font-medium text-gray-800">
+                    {stat.label}
+                  </div>
+                  <div className="text-[10px] text-gray-500 mt-0.5">
+                    {stat.description}
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
