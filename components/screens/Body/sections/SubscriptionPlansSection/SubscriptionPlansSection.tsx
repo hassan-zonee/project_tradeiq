@@ -16,7 +16,6 @@ const planFeatures = {
     { name: "Daily trading signals", included: true },
     { name: "Standard indicators", included: true },
     { name: "Crypto analysis", included: false },
-    { name: "Priority support", included: false },
   ],
   pro: [
     { name: "Advanced market analysis", included: true },
@@ -24,7 +23,6 @@ const planFeatures = {
     { name: "Real-time trading signals", included: true },
     { name: "Advanced indicators", included: true },
     { name: "Basic crypto analysis", included: true },
-    { name: "Priority support", included: false },
   ],
   premium: [
     { name: "Expert market analysis", included: true },
@@ -32,7 +30,6 @@ const planFeatures = {
     { name: "Real-time trading signals", included: true },
     { name: "All premium indicators", included: true },
     { name: "Full crypto analysis", included: true },
-    { name: "Priority 24/7 support", included: true },
   ],
 };
 

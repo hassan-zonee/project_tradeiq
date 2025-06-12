@@ -52,7 +52,7 @@ export const IntroductionSection = (): JSX.Element => {
     },
     {
       icon: Globe,
-      value: "50+",
+      value: "25+",
       label: "Countries",
       description: "Global presence",
       gradient: "from-purple-500 to-pink-500"
