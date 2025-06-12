@@ -107,10 +107,10 @@ export const SubscriptionPlansSection = (): JSX.Element => {
           </span>
         </div>
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-3">
-          Special Launch Pricing
+          Exclusive Discount Pricing
         </h2>
         <p className="text-base text-[#4a5462] text-center max-w-2xl">
-          Join now and save up to 84% on your subscription. This offer won't last long!
+          Take advantage of our special offer and save up to 84% on your subscription today!
         </p>
       </div>
 
@@ -196,7 +196,7 @@ export const SubscriptionPlansSection = (): JSX.Element => {
               </Button>
               {plan.popular && (
                 <p className="text-center text-sm text-gray-500 mt-4">
-                  🔥 Most popular choice - Limited spots!
+                  🔥 Best value choice - Limited availability!
                 </p>
               )}
             </CardContent>
@@ -204,8 +204,8 @@ export const SubscriptionPlansSection = (): JSX.Element => {
         ))}
       </div>
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>⚡️ Special launch pricing - Save up to 84% today!</p>
-        <p className="mt-1">Offer valid for a limited time only. Regular pricing will resume soon.</p>
+        <p>⚡️ Special offer - Save up to 84% today!</p>
+        <p className="mt-1">Limited time discount. Regular pricing will resume soon.</p>
       </div>
     </section>
   );
