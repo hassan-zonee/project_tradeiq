@@ -5,11 +5,13 @@ export const metadata: Metadata = {
   title: 'TradeIQ - AI-Powered Trading Platform',
   description: 'Transform your trading with AI-powered market intelligence',
   icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' }
-    ],
-    shortcut: ['/favicon.ico'],
-    apple: ['/favicon.ico'],
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+    other: {
+      rel: 'icon',
+      url: '/favicon.ico',
+    },
   },
   openGraph: {
     title: 'TradeIQ - AI-Powered Trading Platform',
@@ -36,8 +38,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <link rel="icon" href="/favicon.ico" />
-      <title>TradeIQ - AI Powered Trading Platform</title>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
+      </head>
       <body>{children}</body>
     </html>
   );
