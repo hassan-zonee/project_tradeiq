@@ -15,7 +15,7 @@ import { CandleChart, type IndicatorType } from "@/components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 import { analyzeConfluences, getHigherTimeframe, type TradingSignal } from "@/lib/TechnicalAnalysis";
 
-const ANALYSIS_MIN_LOADING_TIME_MS = 0;
+const ANALYSIS_MIN_LOADING_TIME_MS = 10000;
 
 
 
@@ -366,7 +366,7 @@ export const AnalysisSection = (): JSX.Element => {
             <div className="relative">
               {isAnalysisLoading && (
                 <div 
-                  className="absolute inset-0 bg-white/90 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 rounded-xl"
+                  className="absolute inset-0 bg-white/30 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 rounded-xl"
                 >
                   <div className="flex items-center space-x-1.5 mb-3">
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
