@@ -1,5 +1,3 @@
-'use client';
-
 import '@fontsource/pacifico';
 import { Metadata } from 'next';
 
