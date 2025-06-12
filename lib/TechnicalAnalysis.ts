@@ -8,9 +8,17 @@ export interface EnhancedCandle extends CandlestickData<UTCTimestamp> {
     volume?: number;
     ema200?: number;
     ema50?: number;
+    ema21?: number;  // Added for short-term trend
     rsi14?: number;
     avgVolume?: number;
     atr14?: number; // Added for volatility-based SL/TP
+    vwap?: number;   // Added for institutional interest
+    obv?: number;    // Added for volume trend
+    macd?: {         // Added for trend momentum
+        line: number;
+        signal: number;
+        histogram: number;
+    };
 }
 
 export interface TradingSignal {
@@ -20,7 +28,26 @@ export interface TradingSignal {
     takeProfit?: number;
     entryPrice?: number;
     confluences: string[];
+    riskRewardRatio?: number;
 }
+
+// Add configuration interface at the top after imports
+export interface TradingConfig {
+    minConfluences: number;      // Minimum confluences required for trade entry
+    atrMultiplier: number;       // Multiplier for ATR-based stop loss
+    riskRewardRatio: number;     // Target risk-reward ratio
+    volumeThreshold: number;     // Volume spike threshold multiplier
+    priceDeviation: number;      // Maximum price deviation for level testing (%)
+}
+
+// Default configuration
+export const defaultTradingConfig: TradingConfig = {
+    minConfluences: 2,
+    atrMultiplier: 1.5,
+    riskRewardRatio: 2,
+    volumeThreshold: 1.8,
+    priceDeviation: 0.003
+};
 
 // --- INDICATOR CALCULATIONS ---
 
@@ -147,14 +174,43 @@ const calculateATR = (data: EnhancedCandle[], period: number = 14): (number | un
 // --- CONFLUENCE ANALYSIS ---
 
 // 1. Trend Detection (1H)
-const detectTrend = (data: EnhancedCandle[]): 'uptrend' | 'downtrend' | 'ranging' => {
+const detectTrend = (data: EnhancedCandle[]): 'strong_uptrend' | 'weak_uptrend' | 'strong_downtrend' | 'weak_downtrend' | 'ranging' => {
     const lastCandle = data[data.length - 1];
-    const prevCandle = data[data.length - 10]; // Use a wider lookback for slope
-    if (!lastCandle?.ema200 || !prevCandle?.ema200) return 'ranging';
+    const prevCandle = data[data.length - 10];
+    
+    if (!lastCandle?.ema200 || !lastCandle?.ema50 || !lastCandle?.ema21 || 
+        !prevCandle?.ema200 || !prevCandle?.ema50 || !prevCandle?.ema21) {
+        return 'ranging';
+    }
 
-    const slope = lastCandle.ema200 - prevCandle.ema200;
-    if (lastCandle.close > lastCandle.ema200 && slope > 0) return 'uptrend';
-    if (lastCandle.close < lastCandle.ema200 && slope < 0) return 'downtrend';
+    const ema200Slope = lastCandle.ema200 - prevCandle.ema200;
+    const ema50Slope = lastCandle.ema50 - prevCandle.ema50;
+    const ema21Slope = lastCandle.ema21 - prevCandle.ema21;
+
+    // Strong uptrend conditions
+    if (lastCandle.ema21 > lastCandle.ema50 && 
+        lastCandle.ema50 > lastCandle.ema200 && 
+        ema200Slope > 0 && ema50Slope > 0 && ema21Slope > 0) {
+        return 'strong_uptrend';
+    }
+
+    // Weak uptrend conditions
+    if (lastCandle.close > lastCandle.ema200 && ema50Slope > 0) {
+        return 'weak_uptrend';
+    }
+
+    // Strong downtrend conditions
+    if (lastCandle.ema21 < lastCandle.ema50 && 
+        lastCandle.ema50 < lastCandle.ema200 && 
+        ema200Slope < 0 && ema50Slope < 0 && ema21Slope < 0) {
+        return 'strong_downtrend';
+    }
+
+    // Weak downtrend conditions
+    if (lastCandle.close < lastCandle.ema200 && ema50Slope < 0) {
+        return 'weak_downtrend';
+    }
+
     return 'ranging';
 };
 
@@ -218,8 +274,17 @@ export const getHigherTimeframe = (timeframe: string): string => {
     }
 };
 
-export const analyzeConfluences = async (pair: string, timeframe: string): Promise<TradingSignal> => {
-    // Fetch data for both timeframes
+export const analyzeConfluences = async (
+    pair: string, 
+    timeframe: string,
+    config: Partial<TradingConfig> = {}
+): Promise<TradingSignal> => {
+    // Merge provided config with defaults
+    const tradingConfig: TradingConfig = {
+        ...defaultTradingConfig,
+        ...config
+    };
+
     const higherTimeframe = getHigherTimeframe(timeframe);
     const [higherTimeframeData, entryTimeframeData] = await Promise.all([
         getChartData(pair, higherTimeframe),
@@ -230,145 +295,300 @@ export const analyzeConfluences = async (pair: string, timeframe: string): Promi
         return { signal: 'None', strength: 0, confluences: ['Insufficient data for analysis.'] };
     }
 
-    // 1. Higher Timeframe (1H) Analysis for Trend
+    // Calculate all indicators
     const ema200_htf = calculateEMA(higherTimeframeData, 200);
     const ema50_htf = calculateEMA(higherTimeframeData, 50);
+    const ema21_htf = calculateEMA(higherTimeframeData, 21);
+
     const enhancedHTF: EnhancedCandle[] = higherTimeframeData.map((d, i) => ({ 
         ...d, 
         time: d.time as UTCTimestamp, 
         ema200: ema200_htf[i],
-        ema50: ema50_htf[i]
+        ema50: ema50_htf[i],
+        ema21: ema21_htf[i]
     }));
-    const trend = detectTrend(enhancedHTF);
 
-    // 2. Entry Timeframe (5min) Analysis
-    const atr14_entry = calculateATR(entryTimeframeData.map(d => ({...d, time: d.time as UTCTimestamp})), 14);
+    // Entry timeframe indicators
     const ema200_entry = calculateEMA(entryTimeframeData, 200);
     const ema50_entry = calculateEMA(entryTimeframeData, 50);
+    const ema21_entry = calculateEMA(entryTimeframeData, 21);
     const rsi14_entry = calculateRSI(entryTimeframeData, 14);
-    const avgVol_entry = calculateAvgVolume(entryTimeframeData as { volume?: number }[], 20);
+    const atr14_entry = calculateATR(entryTimeframeData.map(d => ({...d, time: d.time as UTCTimestamp})), 14);
+    const vwap_entry = calculateVWAP(entryTimeframeData.map(d => ({...d, time: d.time as UTCTimestamp})));
+    const obv_entry = calculateOBV(entryTimeframeData.map(d => ({...d, time: d.time as UTCTimestamp})));
+    const macd_entry = calculateMACD(entryTimeframeData);
+
     const enhancedEntry: EnhancedCandle[] = entryTimeframeData.map((d, i) => ({ 
-        ...(d as EnhancedCandle),
+        ...d,
         time: d.time as UTCTimestamp,
         ema200: ema200_entry[i],
         ema50: ema50_entry[i],
+        ema21: ema21_entry[i],
         rsi14: rsi14_entry[i],
-        avgVolume: avgVol_entry[i],
         atr14: atr14_entry[i],
+        vwap: vwap_entry[i],
+        obv: obv_entry[i],
+        macd: macd_entry.macdLine[i] !== undefined ? {
+            line: macd_entry.macdLine[i]!,
+            signal: macd_entry.signalLine[i]!,
+            histogram: macd_entry.histogram[i]!
+        } : undefined
     }));
 
     const lastCandle = enhancedEntry[enhancedEntry.length - 1];
-    if (!lastCandle || !lastCandle.ema50 || !lastCandle.rsi14 || lastCandle.volume === undefined || !lastCandle.avgVolume) {
-        return { signal: 'None', strength: 0, confluences: ['Incomplete indicator data on last candle.'] };
+    if (!lastCandle || !lastCandle.ema50 || !lastCandle.rsi14) {
+        return { signal: 'None', strength: 0, confluences: ['Incomplete indicator data.'] };
     }
 
+    const trend = detectTrend(enhancedEntry);
+    const { supports, resistances } = findKeyLevels(enhancedEntry);
     const confluences: string[] = [];
     let signal: 'Buy' | 'Sell' | 'None' = 'None';
-    let stopLoss: number | undefined;
-    let takeProfit: number | undefined;
 
-    const { highs: swingHighs, lows: swingLows } = findSwingPoints(enhancedEntry.slice(-50), 10);
-    
-    // --- Buy Signal Logic ---
-    if (trend === 'uptrend') {
-        confluences.push(`Agreement: ${higherTimeframe.toUpperCase()} Trend is UP.`);
+    // --- Enhanced Buy Signal Logic ---
+    if (trend.includes('uptrend')) {
+        confluences.push(`Trend: ${trend.toUpperCase()}`);
 
-        // Pullback check
-        const priceRange = lastCandle.high - lastCandle.low;
-        const fib618 = lastCandle.high - (priceRange * 0.618);
-        const inPullbackZone = lastCandle.low <= lastCandle.ema50 && lastCandle.close > lastCandle.ema50;
-        const atFibLevel = lastCandle.low <= fib618 && lastCandle.close > fib618;
-        if (inPullbackZone || atFibLevel) {
-            confluences.push(`Pullback: Retracement to ${inPullbackZone ? '50 EMA' : '61.8% Fib'}.`);
+        // Volume Trend Confirmation
+        const recentOBV = obv_entry.slice(-5);
+        if (recentOBV[recentOBV.length - 1] > recentOBV[0]) {
+            confluences.push('Volume: Increasing OBV confirms uptrend');
         }
 
-        // RSI Divergence check
-        if (detectRsiDivergence(enhancedEntry, 'uptrend')) {
-            confluences.push('Confirmation: Bullish RSI Divergence found.');
+        // VWAP Analysis
+        if (lastCandle.close > lastCandle.vwap!) {
+            confluences.push('Institutional: Price above VWAP');
         }
 
-        // Support/Resistance check
-        const recentLows = swingLows.slice(-3).map(l => l.low);
-        if (recentLows.some(low => Math.abs(lastCandle.low - low) / low < 0.002)) { // within 0.2%
-            confluences.push('Structure: Price is near a recent support level.');
+        // MACD Momentum
+        if (lastCandle.macd && lastCandle.macd.histogram > 0 && 
+            lastCandle.macd.line > lastCandle.macd.signal) {
+            confluences.push('Momentum: Positive MACD crossover');
         }
 
-        // Volume Spike
-        if (lastCandle.volume > lastCandle.avgVolume * 1.8) {
-            confluences.push('Volume: Increased volume detected.');
+        // Support Level Test
+        const nearestSupport = supports.find(s => 
+            Math.abs(lastCandle.low - s) / s < tradingConfig.priceDeviation
+        );
+        if (nearestSupport) {
+            confluences.push('Structure: Price testing support level');
         }
-        
-        // Final Signal Decision
-        if (confluences.length >= 2) { // Require at least 2 confluences
+
+        // RSI Conditions
+        if (lastCandle.rsi14 > 40 && lastCandle.rsi14 < 60) {
+            confluences.push('Momentum: RSI in optimal buy zone');
+        }
+
+        // Final Buy Signal Decision
+        if (confluences.length >= tradingConfig.minConfluences && trend === 'strong_uptrend') {
             signal = 'Buy';
-            if (lastCandle.atr14) {
-                stopLoss = lastCandle.close - (lastCandle.atr14 * 1.01);
-                const rrRatio = Math.random() < 0.5 ? 1.5 : 2; // Randomly pick 1:1.5 or 1:2
-                takeProfit = lastCandle.close + (lastCandle.close - stopLoss) * rrRatio;
-            }
+            const stopLoss = lastCandle.low - (lastCandle.atr14! * tradingConfig.atrMultiplier);
+            const riskAmount = lastCandle.close - stopLoss;
+            const takeProfit = lastCandle.close + (riskAmount * tradingConfig.riskRewardRatio);
+
+            return {
+                signal,
+                strength: (confluences.length / 6) * 100,
+                stopLoss,
+                takeProfit,
+                entryPrice: lastCandle.close,
+                confluences,
+                riskRewardRatio: tradingConfig.riskRewardRatio
+            };
         }
     }
 
-    // --- Sell Signal Logic ---
-    else if (trend === 'downtrend') {
-        confluences.push(`Agreement: ${higherTimeframe.toUpperCase()} Trend is DOWN.`);
+    // --- Enhanced Sell Signal Logic ---
+    if (trend.includes('downtrend')) {
+        confluences.push(`Trend: ${trend.toUpperCase()}`);
 
-        // Pullback check
-        const priceRange = lastCandle.high - lastCandle.low;
-        const fib618 = lastCandle.low + (priceRange * 0.618);
-        const inPullbackZone = lastCandle.high >= lastCandle.ema50 && lastCandle.close < lastCandle.ema50;
-        const atFibLevel = lastCandle.high >= fib618 && lastCandle.close < fib618;
-        if (inPullbackZone || atFibLevel) {
-            confluences.push(`Pullback: Retracement to ${inPullbackZone ? '50 EMA' : '61.8% Fib'}.`);
+        // Volume Trend Confirmation
+        const recentOBV = obv_entry.slice(-5);
+        if (recentOBV[recentOBV.length - 1] < recentOBV[0]) {
+            confluences.push('Volume: Decreasing OBV confirms downtrend');
         }
 
-        // RSI Divergence check
-        if (detectRsiDivergence(enhancedEntry, 'downtrend')) {
-            confluences.push('Confirmation: Bearish RSI Divergence found.');
+        // VWAP Analysis
+        if (lastCandle.close < lastCandle.vwap!) {
+            confluences.push('Institutional: Price below VWAP');
         }
 
-        // Support/Resistance check
-        const recentHighs = swingHighs.slice(-3).map(h => h.high);
-        if (recentHighs.some(high => Math.abs(lastCandle.high - high) / high < 0.002)) { // within 0.2%
-            confluences.push('Structure: Price is near a recent resistance level.');
+        // MACD Momentum
+        if (lastCandle.macd && lastCandle.macd.histogram < 0 && 
+            lastCandle.macd.line < lastCandle.macd.signal) {
+            confluences.push('Momentum: Negative MACD crossover');
         }
 
-        // Volume Spike
-        if (lastCandle.volume > lastCandle.avgVolume * 1.8) {
-            confluences.push('Volume: Increased volume detected.');
+        // Resistance Level Test
+        const nearestResistance = resistances.find(r => 
+            Math.abs(lastCandle.high - r) / r < tradingConfig.priceDeviation
+        );
+        if (nearestResistance) {
+            confluences.push('Structure: Price testing resistance level');
         }
 
-        // Final Signal Decision
-        if (confluences.length >= 2) { // Require at least 2 confluences
+        // RSI Conditions
+        if (lastCandle.rsi14 > 60) {
+            confluences.push('Momentum: RSI in overbought zone');
+        }
+
+        // Final Sell Signal Decision
+        if (confluences.length >= tradingConfig.minConfluences && trend === 'strong_downtrend') {
             signal = 'Sell';
-            if (lastCandle.atr14) {
-                stopLoss = lastCandle.close + (lastCandle.atr14 * 1.01);
-                const rrRatio = Math.random() < 0.5 ? 1.5 : 2; // Randomly pick 1:1.5 or 1:2
-                takeProfit = lastCandle.close - (stopLoss - lastCandle.close) * rrRatio;
-            }
+            const stopLoss = lastCandle.high + (lastCandle.atr14! * tradingConfig.atrMultiplier);
+            const riskAmount = stopLoss - lastCandle.close;
+            const takeProfit = lastCandle.close - (riskAmount * tradingConfig.riskRewardRatio);
+
+            return {
+                signal,
+                strength: (confluences.length / 6) * 100,
+                stopLoss,
+                takeProfit,
+                entryPrice: lastCandle.close,
+                confluences,
+                riskRewardRatio: tradingConfig.riskRewardRatio
+            };
         }
     }
 
-    // If a signal was generated but we couldn't set SL/TP, invalidate it.
-    if (signal !== 'None' && (!stopLoss || !takeProfit)) {
-        signal = 'None';
-        confluences.push('Note: Signal invalidated, no clear stop-loss level found.');
+    return {
+        signal: 'None',
+        strength: (confluences.length / 6) * 100,
+        confluences: confluences.length > 0 ? confluences : ['No significant setup found']
+    };
+};
+
+// Added VWAP calculation
+const calculateVWAP = (data: EnhancedCandle[]): number[] => {
+    const vwap: number[] = [];
+    let cumulativeTPV = 0;
+    let cumulativeVolume = 0;
+
+    data.forEach((candle, i) => {
+        const typicalPrice = (candle.high + candle.low + candle.close) / 3;
+        const volume = candle.volume || 0;
+        
+        cumulativeTPV += typicalPrice * volume;
+        cumulativeVolume += volume;
+        
+        vwap[i] = cumulativeVolume > 0 ? cumulativeTPV / cumulativeVolume : typicalPrice;
+    });
+
+    return vwap;
+};
+
+// Added OBV calculation
+const calculateOBV = (data: EnhancedCandle[]): number[] => {
+    const obv: number[] = [0];
+    
+    for (let i = 1; i < data.length; i++) {
+        const currentClose = data[i].close;
+        const previousClose = data[i - 1].close;
+        const currentVolume = data[i].volume || 0;
+        
+        if (currentClose > previousClose) {
+            obv[i] = obv[i - 1] + currentVolume;
+        } else if (currentClose < previousClose) {
+            obv[i] = obv[i - 1] - currentVolume;
+        } else {
+            obv[i] = obv[i - 1];
+        }
     }
     
-    const strength = Math.round((confluences.filter(c => !c.startsWith('Note:')).length / 5) * 100);
+    return obv;
+};
 
-    if (signal === 'None') {
-        const finalConfluences = confluences.length > 0 ? confluences : ['No significant trading setup identified.'];
-        return { signal: 'None', strength, confluences: finalConfluences };
+// Enhanced MACD calculation
+const calculateMACD = (data: { close: number }[], fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) => {
+    const fastEMA = calculateEMA(data, fastPeriod);
+    const slowEMA = calculateEMA(data, slowPeriod);
+    const macdLine = fastEMA.map((fast, i) => 
+        fast && slowEMA[i] ? fast - slowEMA[i] : undefined
+    );
+    
+    const signalLine = calculateEMA(
+        macdLine.map(value => ({ close: value || 0 })),
+        signalPeriod
+    );
+    
+    const histogram = macdLine.map((macd, i) => 
+        macd && signalLine[i] ? macd - signalLine[i] : undefined
+    );
+
+    return { macdLine, signalLine, histogram };
+};
+
+// Enhanced support/resistance detection with volume confirmation
+const findKeyLevels = (data: EnhancedCandle[], lookback: number = 100): { supports: number[], resistances: number[] } => {
+    const levels = new Map<number, { count: number, volume: number }>();
+    const priceRounding = 4; // Round prices to 4 decimal places for clustering
+
+    // Analyze price levels with volume
+    data.slice(-lookback).forEach(candle => {
+        const highKey = Number(candle.high.toFixed(priceRounding));
+        const lowKey = Number(candle.low.toFixed(priceRounding));
+        const volume = candle.volume || 0;
+
+        if (!levels.has(highKey)) {
+            levels.set(highKey, { count: 0, volume: 0 });
+        }
+        if (!levels.has(lowKey)) {
+            levels.set(lowKey, { count: 0, volume: 0 });
+        }
+
+        levels.get(highKey)!.count++;
+        levels.get(highKey)!.volume += volume;
+        levels.get(lowKey)!.count++;
+        levels.get(lowKey)!.volume += volume;
+    });
+
+    // Filter significant levels
+    const significantLevels = Array.from(levels.entries())
+        .filter(([_, data]) => data.count >= 3 && data.volume > 0)
+        .sort((a, b) => b[1].count - a[1].count);
+
+    const lastPrice = data[data.length - 1].close;
+    const supports = significantLevels
+        .filter(([price, _]) => price < lastPrice)
+        .slice(0, 3)
+        .map(([price, _]) => price);
+    
+    const resistances = significantLevels
+        .filter(([price, _]) => price > lastPrice)
+        .slice(0, 3)
+        .map(([price, _]) => price);
+
+    return { supports, resistances };
+};
+
+// Enhanced divergence detection with volume confirmation
+const detectDivergence = (data: EnhancedCandle[], trend: string): boolean => {
+    const lookback = 30;
+    const recentData = data.slice(-lookback);
+    if (recentData.length < lookback) return false;
+
+    const { lows, highs } = findSwingPoints(recentData, 5);
+    const volumeThreshold = recentData.reduce((sum, candle) => sum + (candle.volume || 0), 0) / lookback * 1.5;
+
+    if (trend.includes('uptrend') && lows.length >= 2) {
+        const lastLow = lows[lows.length - 1];
+        const prevLow = lows[lows.length - 2];
+        if (lastLow.low < prevLow.low && 
+            lastLow.rsi14! > prevLow.rsi14! && 
+            (lastLow.volume || 0) > volumeThreshold) {
+            return true;
+        }
+    }
+    
+    if (trend.includes('downtrend') && highs.length >= 2) {
+        const lastHigh = highs[highs.length - 1];
+        const prevHigh = highs[highs.length - 2];
+        if (lastHigh.high > prevHigh.high && 
+            lastHigh.rsi14! < prevHigh.rsi14! && 
+            (lastHigh.volume || 0) > volumeThreshold) {
+            return true;
+        }
     }
 
-    // We have a valid signal with SL/TP
-    return {
-        signal,
-        strength,
-        stopLoss,
-        takeProfit,
-        entryPrice: lastCandle.close,
-        confluences,
-    };
+    return false;
 };
