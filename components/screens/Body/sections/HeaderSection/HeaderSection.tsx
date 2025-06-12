@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, LineChart, BookOpen, Users, Crown } from 'lucide-react';
+import { Menu, X, ChevronDown, LineChart, BookOpen, Users, Crown, Home, Info } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -83,14 +83,10 @@ export const HeaderSection = (): JSX.Element => {
   };
 
   const navItems = [
-    {
-      label: 'Features',
-      items: [
-        { label: 'Analysis', icon: LineChart, href: '/analysis' },
-        { label: 'Education', icon: BookOpen, href: '/analysis' },
-        { label: 'Community', icon: Users, href: '/analysis' },
-      ]
-    },
+    { label: 'Home', href: '#introduction' },
+    { label: 'Analysis', href: '/analysis' },
+    { label: 'Pricing', href: '#about-us' },
+    { label: 'About Us', href: '#testimonials' },
   ];
 
   // Update the Sign In button in the desktop view
@@ -185,41 +181,14 @@ export const HeaderSection = (): JSX.Element => {
           transition={{ duration: 0.5 }}
         >
           {navItems.map((item) => (
-            <div 
-              key={item.label} 
-              className="relative"
-              onMouseEnter={() => setActiveDropdown(item.label)}
-              onMouseLeave={() => setActiveDropdown(null)}
+            <Link
+              key={item.label}
+              href={item.href}
+              className="text-gray-600 hover:text-gray-900 transition-colors relative group"
             >
-              <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 transition-colors">
-                <span>{item.label}</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              <AnimatePresence>
-                {activeDropdown === item.label && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-2 w-48 glass-card rounded-xl overflow-hidden border border-white/20"
-                  >
-                    <div className="py-2">
-                      {item.items.map((subItem) => (
-                        <Link
-                          key={subItem.label}
-                          href={subItem.href}
-                          className="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 transition-colors"
-                        >
-                          <subItem.icon className="w-4 h-4" />
-                          <span>{subItem.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+              <span>{item.label}</span>
+              <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-violet-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+            </Link>
           ))}
         </motion.nav>
 
@@ -245,121 +214,49 @@ export const HeaderSection = (): JSX.Element => {
             </motion.div>
           )}
           
-          {user ? (
-            <div className="flex items-center space-x-4">
-              <motion.div 
-                className="relative group"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-              >
-                <span className="text-gray-700 font-medium group-hover:text-[#3b81f5] transition-colors">
-                  {user.displayName || 'User'}
-                </span>
-                <motion.div 
-                  className="absolute bottom-0 left-0 w-full h-0.5 bg-[#3b81f5] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
-                  initial={false}
-                />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.3 }}
-              >
-                <SignOutButton />
-              </motion.div>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-4">
-              <motion.span 
-                className="text-gray-500"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-              >
-                Not Logged In
-              </motion.span>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.3 }}
-              >
-                <SignInButton />
-              </motion.div>
-            </div>
-          )}
+          {user ? <SignOutButton /> : <SignInButton />}
         </motion.div>
 
         {/* Mobile Menu Button */}
-        <motion.button
-          className="md:hidden relative z-50 text-gray-600 hover:text-gray-900 transition-colors"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </motion.button>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              className="fixed inset-0 z-40 md:hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <motion.div
-                className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsMenuOpen(false)}
-              />
-              <motion.div
-                className="absolute right-0 top-0 bottom-0 w-64 glass-card py-6 px-4"
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'tween', duration: 0.3 }}
-              >
-                <div className="flex flex-col space-y-6">
-                  {navItems.map((item) => (
-                    <div key={item.label} className="space-y-2">
-                      <div className="font-medium text-gray-900">{item.label}</div>
-                      <div className="space-y-1">
-                        {item.items.map((subItem) => (
-                          <Link
-                            key={subItem.label}
-                            href={subItem.href}
-                            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 py-1"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <subItem.icon className="w-4 h-4" />
-                            <span>{subItem.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  {user ? (
-                    <div className="pt-4 border-t border-gray-200">
-                      <div className="text-sm text-gray-600 mb-2">{user.displayName || 'User'}</div>
-                      <SignOutButton />
-                    </div>
-                  ) : (
-                    <div className="pt-4 border-t border-gray-200">
-                      <SignInButton />
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="md:hidden">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-gray-600 hover:text-gray-900 focus:outline-none"
+          >
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden glass"
+          >
+            <div className="px-4 py-2 space-y-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="block py-2 text-gray-600 hover:text-gray-900"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {user ? <SignOutButton /> : <SignInButton />}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
