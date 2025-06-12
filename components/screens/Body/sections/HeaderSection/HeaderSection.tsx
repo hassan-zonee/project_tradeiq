@@ -87,8 +87,8 @@ export const HeaderSection = (): JSX.Element => {
       label: 'Features',
       items: [
         { label: 'Analysis', icon: LineChart, href: '/analysis' },
-        { label: 'Education', icon: BookOpen, href: '#education' },
-        { label: 'Community', icon: Users, href: '#community' },
+        { label: 'Education', icon: BookOpen, href: '/analysis' },
+        { label: 'Community', icon: Users, href: '/analysis' },
       ]
     },
     {
@@ -167,8 +167,21 @@ export const HeaderSection = (): JSX.Element => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Link href="/" className="[font-family:'Pacifico',Helvetica] font-normal text-[#3b81f5] text-2xl leading-8 whitespace-nowrap hover-scale shine">
-            TradeIQ
+          <Link 
+            href="/" 
+            className="relative group"
+          >
+            <span className="font-['Pacifico'] font-bold text-3xl leading-8 whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-600 hover:via-indigo-600 hover:to-violet-600 transition-all duration-300 inline-block transform hover:scale-105 hover:-rotate-2"
+              style={{
+                textShadow: '0 2px 10px rgba(59, 130, 246, 0.2)'
+              }}
+            >
+              Trade
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent bg-clip-text ml-0.5">
+                IQ
+              </span>
+            </span>
+            <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
           </Link>
         </motion.div>
 
