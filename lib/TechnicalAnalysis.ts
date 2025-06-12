@@ -388,7 +388,7 @@ export const analyzeConfluences = async (
 
             return {
                 signal,
-                strength: (confluences.length / 6) * 100,
+                strength: Math.round((confluences.length / 6) * 100),
                 stopLoss,
                 takeProfit,
                 entryPrice: lastCandle.close,
@@ -441,7 +441,7 @@ export const analyzeConfluences = async (
 
             return {
                 signal,
-                strength: (confluences.length / 6) * 100,
+                strength: Math.round((confluences.length / 6) * 100),
                 stopLoss,
                 takeProfit,
                 entryPrice: lastCandle.close,
@@ -453,7 +453,7 @@ export const analyzeConfluences = async (
 
     return {
         signal: 'None',
-        strength: (confluences.length / 6) * 100,
+        strength: Math.round((confluences.length / 6) * 100),
         confluences: confluences.length > 0 ? confluences : ['No significant setup found']
     };
 };
