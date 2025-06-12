@@ -31,6 +31,8 @@ export const metadata: Metadata = {
   },
 };
 
+import Head from 'next/head';
+
 export default function RootLayout({
   children,
 }: {
@@ -38,6 +40,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Head>
+        <meta property="og:title" content="TradeIQ - AI-Powered Trading Platform" />
+        <meta property="og:description" content="Transform your trading with AI-powered market intelligence" />
+        <meta property="og:image" content="https://yourdomain.com/og-image.png" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="TradeIQ - AI-Powered Trading Platform" />
+        <meta name="twitter:description" content="Transform your trading with AI-powered market intelligence" />
+        <meta name="twitter:image" content="https://yourdomain.com/og-image.png" />
+      </Head>
       <body>{children}</body>
     </html>
   );
