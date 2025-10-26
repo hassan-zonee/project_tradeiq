@@ -15,7 +15,7 @@ import { CandleChart, type IndicatorType } from "@/components/CandleChart";
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 import { analyzeConfluences, getHigherTimeframe, type TradingSignal } from "@/lib/TechnicalAnalysis";
 
-const ANALYSIS_MIN_LOADING_TIME_MS = 10000;
+const ANALYSIS_MIN_LOADING_TIME_MS = 1000;
 
 
 
@@ -144,7 +144,7 @@ export const AnalysisSection = (): JSX.Element => {
     const intervalId = setInterval(() => {
       console.log(`Interval: Fetching chart data for ${selectedPair} ${selectedTimeframe} at ${new Date().toLocaleTimeString()}`);
       fetchAndSetChartData(false); // Subsequent fetches are background updates
-    }, 10000);
+    }, 1000);
 
     return () => {
       clearInterval(intervalId); // Cleanup interval on component unmount or when dependencies change
