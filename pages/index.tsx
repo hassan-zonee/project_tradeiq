@@ -33,8 +33,6 @@ const sectionVariants = {
 
 export default function HomePage() {
   return (
-    {/** 
-      
     <motion.div
       initial="hidden"
       animate="visible"
@@ -119,6 +117,13 @@ export default function HomePage() {
             <AboutUsSection />
           </motion.div>
 
+          <motion.div 
+            id="subscription-plans"
+            variants={sectionVariants}
+            className="mt-16"
+          >
+            <SubscriptionPlansSection />
+          </motion.div>
         </div>
       </main>
 
@@ -126,8 +131,5 @@ export default function HomePage() {
         <FooterSection />
       </motion.div>
     </motion.div>
-    */}
-
-    <div>404!</div>
   );
 }
