@@ -22,7 +22,7 @@ const ANALYSIS_MIN_LOADING_TIME_MS = 100;
 export const AnalysisSection = (): JSX.Element => {
   const [currencyPairs, setCurrencyPairs] = useState<SymbolInfo[]>([]);
   const [selectedPair, setSelectedPair] = useState<string>("");
-  const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1h");
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>("15m");
   const [loadingPairs, setLoadingPairs] = useState<boolean>(true);
   const [pairsError, setPairsError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
