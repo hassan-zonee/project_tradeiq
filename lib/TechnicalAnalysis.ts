@@ -408,7 +408,7 @@ export const analyzeConfluences = async (
     }
 
     // Calculate strength (capped at 80)
-    const strength = signal === 'None' ? 0 : Math.min(80, Math.round((confluences.length / 5) * 80));
+    const strength = signal === 'None' ? 0 : Math.min(100, Math.round((confluences.length / 5) * 100));
 
     // Calculate SL and TP based on signal
     if (signal === 'Buy') {
