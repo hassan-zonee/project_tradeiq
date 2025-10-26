@@ -328,6 +328,7 @@ export const AnalysisSection = (): JSX.Element => {
                       <SelectValue placeholder="1h" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="5m" className="font-mono">5m</SelectItem>
                       <SelectItem value="15m" className="font-mono">15m</SelectItem>
                       <SelectItem value="30m" className="font-mono">30m</SelectItem>
                       <SelectItem value="1h" className="font-mono">1h</SelectItem>
