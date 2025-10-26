@@ -119,13 +119,6 @@ export default function HomePage() {
             <AboutUsSection />
           </motion.div>
 
-          <motion.div 
-            id="subscription-plans"
-            variants={sectionVariants}
-            className="mt-16"
-          >
-            <SubscriptionPlansSection />
-          </motion.div>
         </div>
       </main>
 
