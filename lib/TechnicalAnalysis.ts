@@ -261,10 +261,12 @@ const detectRsiDivergence = (data: EnhancedCandle[], trend: 'uptrend' | 'downtre
 // --- MAIN ANALYSIS FUNCTION ---
 export const getHigherTimeframe = (timeframe: string): string => {
     switch (timeframe) {
+        case '1m':
+            return '5m';
         case '5m':
             return '15m';
         case '15m':
-            return '45m';
+            return '1h';
         case '30m':
             return '1h';
         case '1h':

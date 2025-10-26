@@ -325,9 +325,10 @@ export const AnalysisSection = (): JSX.Element => {
                   </label>
                   <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
                     <SelectTrigger className="w-[90px] h-[32px] border-[#d0d5da] rounded-lg font-medium bg-white/50 text-[13px] font-mono">
-                      <SelectValue placeholder="1h" />
+                      <SelectValue placeholder="5m" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="1m" className="font-mono">1m</SelectItem>
                       <SelectItem value="5m" className="font-mono">5m</SelectItem>
                       <SelectItem value="15m" className="font-mono">15m</SelectItem>
                       <SelectItem value="30m" className="font-mono">30m</SelectItem>
