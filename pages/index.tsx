@@ -90,6 +90,7 @@ export default function HomePage() {
 
       <main className="flex justify-center w-full">
         <div className="flex flex-col w-full max-w-screen-xl relative -mt-10 px-4 md:px-6">
+          {/*
           <motion.div variants={sectionVariants}>
             <IntroductionSection />
           </motion.div>
@@ -117,6 +118,14 @@ export default function HomePage() {
             <AboutUsSection />
           </motion.div>
 
+          <motion.div 
+            id="subscription-plans"
+            variants={sectionVariants}
+            className="mt-16"
+          >
+            <SubscriptionPlansSection />
+          </motion.div>
+          */}
         </div>
       </main>
 
