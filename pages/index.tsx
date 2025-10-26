@@ -33,6 +33,8 @@ const sectionVariants = {
 
 export default function HomePage() {
   return (
+    {/** 
+      
     <motion.div
       initial="hidden"
       animate="visible"
@@ -131,5 +133,8 @@ export default function HomePage() {
         <FooterSection />
       </motion.div>
     </motion.div>
+    */}
+
+    <div>404!</div>
   );
 }
