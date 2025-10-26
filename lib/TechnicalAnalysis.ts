@@ -524,7 +524,7 @@ const calculateMACD = (data: { close: number }[], fastPeriod = 12, slowPeriod = 
 };
 
 // Enhanced support/resistance detection with volume confirmation
-const findKeyLevels = (data: EnhancedCandle[], lookback: number = 50): { supports: number[], resistances: number[] } => {
+const findKeyLevels = (data: EnhancedCandle[], lookback: number = 100): { supports: number[], resistances: number[] } => {
     const levels = new Map<number, { count: number, volume: number }>();
     const priceRounding = 4; // Round prices to 4 decimal places for clustering
 
