@@ -416,7 +416,7 @@ export const AnalysisSection = (): JSX.Element => {
         <Card className="shadow-sm rounded-xl">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-base font-semibold text-[#374050] uppercase tracking-wide">AI Analysis</h3>
+              <h3 className="text-base font-semibold text-[#374050] uppercase tracking-wide">Analysis</h3>
               <Button 
                 onClick={handleAnalyzeClick} 
                 disabled={isAnalysisLoading}
